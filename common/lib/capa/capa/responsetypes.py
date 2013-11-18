@@ -978,7 +978,7 @@ class StringResponse(LoncapaResponse):
     def get_score(self, student_answers):
         '''Grade a string response '''
         student_answer = student_answers[self.answer_id].strip()
-        correct = self.check_string(self.correct_answer, student_answer)
+        correct = self.check_string(self.correct_answers, student_answer)
         return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
 
     def check_string(self, expected, given):

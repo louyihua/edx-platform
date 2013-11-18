@@ -83,6 +83,8 @@ inline discussion.
 Blades: Allow multiple strings as the correct answer to a string response
 question. BLD-474.
 
+Blades: Allow multiple strings as the correct answer to a string response question. BLD-474.
+
 Blades: a11y - Videos will alert screenreaders when the video is over.
 
 LMS: Trap focus on the loading element when a user loads more threads
