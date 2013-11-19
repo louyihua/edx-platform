@@ -981,9 +981,14 @@ class StringResponse(LoncapaResponse):
         return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
 
     def check_string(self, expected, given):
-        flags = re.IGNORECASE if(self.xml.get('type') == 'ci') else 0
+        # Merge all regular expressions
+        regexp_string = ur'|'.join(expected)
 
-        regexp = re.compile(expected, flags=flags|re.UNICODE)
+        if self.xml.get('type') == 'ci':
+            regexp = re.compile(regexp_string, flags=re.I)
+        else:
+            regexp = re.compile(regexp_string)
+
         return bool(re.search(regexp, given))
 
     def check_hint_condition(self, hxml_set, student_answers):
