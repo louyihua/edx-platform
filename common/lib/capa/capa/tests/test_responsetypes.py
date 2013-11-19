@@ -502,6 +502,65 @@ class StringResponseTest(ResponseTest):
     from capa.tests.response_xml_factory import StringResponseXMLFactory
     xml_factory_class = StringResponseXMLFactory
 
+    def test_regexp(self):
+        problem = self.build_problem(answer="Second", case_sensitive=False)
+        self.assert_grade(problem, "Second", "correct")
+
+        problem = self.build_problem(answer="sec", case_sensitive=False)
+        self.assert_grade(problem, "Second", "correct")
+
+        problem = self.build_problem(answer="sec", case_sensitive=True)
+        self.assert_grade(problem, "Second", "incorrect")
+
+        problem = self.build_problem(answer="sec$", case_sensitive=False)
+        self.assert_grade(problem, "Second", "incorrect")
+
+        problem = self.build_problem(answer="^sec$", case_sensitive=False)
+        self.assert_grade(problem, "Second", "incorrect")
+
+        problem = self.build_problem(answer="^Sec(ond)?$", case_sensitive=False)
+        self.assert_grade(problem, "Second", "correct")
+
+        problem = self.build_problem(answer="^Sec(ond)?$", case_sensitive=False)
+        self.assert_grade(problem, "Sec", "correct")
+
+        problem = self.build_problem(answer="tre+", case_sensitive=False)
+        self.assert_grade(problem, "There is a tree", "correct")
+
+        answers = [
+            "Martin Luther King Junior",
+            "Doctor Martin Luther King Junior",
+            "Dr. Martin Luther King Jr.",
+            "Martin Luther King"
+        ]
+
+        problem = self.build_problem(answer="\w*\.?\s*Luther King\s*.*", case_sensitive=True)
+
+        for answer in answers:
+            self.assert_grade(problem, answer, "correct")
+
+        problem = self.build_problem(answer="^(bo){2,5}$", case_sensitive=False)
+        self.assert_grade(problem, "bobobo", "correct")
+        self.assert_grade(problem, "bo", "incorrect")
+        self.assert_grade(problem, "bobobobobobobo", "incorrect")
+
+        regexps = [
+            "^One$",
+            "two",
+            "^thre+",
+            "^4|Four$",
+        ]
+        problem = self.build_problem(answer="_or_".join(regexps), case_sensitive=False)
+
+        self.assert_grade(problem, "One", "correct")
+        self.assert_grade(problem, "two", "correct")
+        self.assert_grade(problem, "!!two!!", "correct")
+        self.assert_grade(problem, "threeeee", "correct")
+        self.assert_grade(problem, "three", "correct")
+        self.assert_grade(problem, "4", "correct")
+        self.assert_grade(problem, "Four", "correct")
+        self.assert_grade(problem, "Five", "incorrect")
+
     def test_case_sensitive(self):
         # Test single answer
         problem = self.build_problem(answer="Second", case_sensitive=True)

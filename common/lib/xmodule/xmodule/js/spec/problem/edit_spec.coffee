@@ -283,6 +283,29 @@ describe 'MarkdownEditingDescriptor', ->
         </div>
         </solution>
         </problem>""")
+    it 'converts StringResponse with regular expressions to xml', ->
+      data = MarkdownEditingDescriptor.markdownToXml("""Who lead the civil right movement in the United States of America?
+        = \w*\.?\s*Luther King\s*.*
+
+        [Explanation]
+        Test Explanation.
+        [Explanation]
+        """)
+      expect(data).toEqual("""<problem>
+        <p>Who lead the civil right movement in the United States of America?</p>
+        <stringresponse answer="\w*\.?\s*Luther King\s*.*" type="ci">
+          <textline size="20"/>
+        </stringresponse>
+
+        <solution>
+        <div class="detailed-solution">
+        <p>Explanation</p>
+
+        <p>Test Explanation.</p>
+
+        </div>
+        </solution>
+        </problem>""")
     it 'converts StringResponse with multiple answers to xml', ->
       data = MarkdownEditingDescriptor.markdownToXml("""Who lead the civil right movement in the United States of America?
         = Dr. Martin Luther King Jr.
@@ -297,6 +320,32 @@ describe 'MarkdownEditingDescriptor', ->
       expect(data).toEqual("""<problem>
         <p>Who lead the civil right movement in the United States of America?</p>
         <stringresponse answer="Dr. Martin Luther King Jr._or_Doctor Martin Luther King Junior_or_Martin Luther King_or_Martin Luther King Junior" type="ci">
+          <textline size="20"/>
+        </stringresponse>
+
+        <solution>
+        <div class="detailed-solution">
+        <p>Explanation</p>
+
+        <p>Test Explanation.</p>
+
+        </div>
+        </solution>
+        </problem>""")
+    it 'converts StringResponse with multiple answers and regular expressions to xml', ->
+      data = MarkdownEditingDescriptor.markdownToXml("""Write a number from 1 to 4.
+        = ^One$
+        or= two
+        or= ^thre+
+        or= ^4|Four$
+
+        [Explanation]
+        Test Explanation.
+        [Explanation]
+        """)
+      expect(data).toEqual("""<problem>
+        <p>Write a number from 1 to 4.</p>
+        <stringresponse answer="^One$_or_two_or_^thre+_or_^4|Four$" type="ci">
           <textline size="20"/>
         </stringresponse>
 
