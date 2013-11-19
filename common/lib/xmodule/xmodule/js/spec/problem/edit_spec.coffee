@@ -358,6 +358,32 @@ describe 'MarkdownEditingDescriptor', ->
         </div>
         </solution>
         </problem>""")
+    it 'converts StringResponse with multiple answers and regular expressions to xml', ->
+      data = MarkdownEditingDescriptor.markdownToXml("""Write a number from 1 to 4.
+        = ^One$
+        or= two
+        or= ^thre+
+        or= ^4|Four$
+
+        [Explanation]
+        Test Explanation.
+        [Explanation]
+        """)
+      expect(data).toEqual("""<problem>
+        <p>Write a number from 1 to 4.</p>
+        <stringresponse answer="^One$_or_two_or_^thre+_or_^4|Four$" type="ci">
+          <textline size="20"/>
+        </stringresponse>
+
+        <solution>
+        <div class="detailed-solution">
+        <p>Explanation</p>
+
+        <p>Test Explanation.</p>
+
+        </div>
+        </solution>
+        </problem>""")
     # test oddities
     it 'converts headers and oddities to xml', ->
       data = MarkdownEditingDescriptor.markdownToXml("""Not a header
