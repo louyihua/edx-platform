@@ -702,7 +702,7 @@ class StringResponseXMLFactory(ResponseXMLFactory):
         response_element = etree.Element("stringresponse")
 
         # Set the answer attribute
-        response_element.set("answer", str(answer))
+        response_element.set("answer", unicode(answer))
 
         # Set the case sensitivity
         response_element.set("type", "cs" if case_sensitive else "ci")

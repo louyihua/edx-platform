@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tests of responsetypes
 """
@@ -539,10 +540,10 @@ class StringResponseTest(ResponseTest):
         for answer in answers:
             self.assert_grade(problem, answer, "correct")
 
-        problem = self.build_problem(answer="^(bo){2,5}$", case_sensitive=False)
-        self.assert_grade(problem, "bobobo", "correct")
-        self.assert_grade(problem, "bo", "incorrect")
-        self.assert_grade(problem, "bobobobobobobo", "incorrect")
+        problem = self.build_problem(answer="^(-\|){2,5}$", case_sensitive=False)
+        self.assert_grade(problem, "-|-|-|", "correct")
+        self.assert_grade(problem, "-|", "incorrect")
+        self.assert_grade(problem, "-|-|-|-|-|-|", "incorrect")
 
         regexps = [
             "^One$",
@@ -560,6 +561,21 @@ class StringResponseTest(ResponseTest):
         self.assert_grade(problem, "4", "correct")
         self.assert_grade(problem, "Four", "correct")
         self.assert_grade(problem, "Five", "incorrect")
+        self.assert_grade(problem, "|", "incorrect")
+
+        # test unicode
+        problem = self.build_problem(answer=u"æ|ö", case_sensitive=False)
+        self.assert_grade(problem, u"æ", "correct")
+        self.assert_grade(problem, u"ö", "correct")
+        self.assert_grade(problem, u"î", "incorrect")
+        self.assert_grade(problem, u"o", "incorrect")
+
+
+    def test_backslash(self):
+        problem = self.build_problem(answer="5\p", case_sensitive=False)
+        self.assert_grade(problem, "5\p", "correct")
+        self.assert_grade(problem, "æ ", "correct")
+
 
     def test_case_sensitive(self):
         # Test single answer
