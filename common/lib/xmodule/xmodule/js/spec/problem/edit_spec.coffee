@@ -319,7 +319,7 @@ describe 'MarkdownEditingDescriptor', ->
         """)
       expect(data).toEqual("""<problem>
         <p>Who lead the civil right movement in the United States of America?</p>
-        <stringresponse answer="Dr. Martin Luther King Jr.|Doctor Martin Luther King Junior|Martin Luther King|Martin Luther King Junior" type="ci">
+        <stringresponse answer="Dr. Martin Luther King Jr._or_Doctor Martin Luther King Junior_or_Martin Luther King_or_Martin Luther King Junior" type="ci">
           <textline size="20"/>
         </stringresponse>
 

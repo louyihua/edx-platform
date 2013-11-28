@@ -977,14 +977,13 @@ class StringResponse(LoncapaResponse):
     def get_score(self, student_answers):
         '''Grade a string response '''
         student_answer = student_answers[self.answer_id].strip()
-        correct = self.check_string(self.correct_answers, student_answer)
+        correct = self.check_string(self.correct_answer, student_answer)
         return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
 
     def check_string(self, expected, given):
-        regexp_string = '|'.join(expected)
         flags = re.IGNORECASE if(self.xml.get('type') == 'ci') else 0
 
-        regexp = re.compile(regexp_string, flags=flags|re.UNICODE)
+        regexp = re.compile(expected, flags=flags|re.UNICODE)
         return bool(re.search(regexp, given))
 
     def check_hint_condition(self, hxml_set, student_answers):
