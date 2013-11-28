@@ -319,7 +319,7 @@ describe 'MarkdownEditingDescriptor', ->
         """)
       expect(data).toEqual("""<problem>
         <p>Who lead the civil right movement in the United States of America?</p>
-        <stringresponse answer="Dr. Martin Luther King Jr._or_Doctor Martin Luther King Junior_or_Martin Luther King_or_Martin Luther King Junior" type="ci">
+        <stringresponse answer="Dr. Martin Luther King Jr.|Doctor Martin Luther King Junior|Martin Luther King|Martin Luther King Junior" type="ci">
           <textline size="20"/>
         </stringresponse>
 
@@ -345,7 +345,7 @@ describe 'MarkdownEditingDescriptor', ->
         """)
       expect(data).toEqual("""<problem>
         <p>Write a number from 1 to 4.</p>
-        <stringresponse answer="^One$_or_two_or_^thre+_or_^4|Four$" type="ci">
+        <stringresponse answer="^One$|two|^thre+|^4|Four$" type="ci">
           <textline size="20"/>
         </stringresponse>
 

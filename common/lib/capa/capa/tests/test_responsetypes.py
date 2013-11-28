@@ -551,7 +551,7 @@ class StringResponseTest(ResponseTest):
             "^thre+",
             "^4|Four$",
         ]
-        problem = self.build_problem(answer="_or_".join(regexps), case_sensitive=False)
+        problem = self.build_problem(answer="|".join(regexps), case_sensitive=False)
 
         self.assert_grade(problem, "One", "correct")
         self.assert_grade(problem, "two", "correct")
@@ -590,7 +590,7 @@ class StringResponseTest(ResponseTest):
 
         # Test multiple answers
         answers = ["Second", "Third", "Fourth"]
-        problem = self.build_problem(answer="_or_".join(answers), case_sensitive=True)
+        problem = self.build_problem(answer="|".join(answers), case_sensitive=True)
 
         for answer in answers:
             # Exact string should be correct
@@ -614,7 +614,7 @@ class StringResponseTest(ResponseTest):
 
         # Test multiple answers
         answers = ["Second", "Third", "Fourth"]
-        problem = self.build_problem(answer="_or_".join(answers), case_sensitive=False)
+        problem = self.build_problem(answer="|".join(answers), case_sensitive=False)
 
         for answer in answers:
             # Exact string should be correct
@@ -633,7 +633,7 @@ class StringResponseTest(ResponseTest):
         ]
         hints = [("wisconsin", "wisc", "The state capital of Wisconsin is Madison"),
                  ("minnesota", "minn", "The state capital of Minnesota is St. Paul"),
-                 ("_or_".join(multiple_answers), "mlk", "He lead the civil right movement in the United States of America.")]
+                 ("|".join(multiple_answers), "mlk", "He lead the civil right movement in the United States of America.")]
 
         problem = self.build_problem(answer="Michigan",
                                      case_sensitive=False,

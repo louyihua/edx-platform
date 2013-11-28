@@ -253,7 +253,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
                 answers.push(answersList[i])
             }
 
-            string = '<stringresponse answer="' + answers.join('_or_') + '" type="ci">\n  <textline size="20"/>\n</stringresponse>\n\n';
+            string = '<stringresponse answer="' + answers.join('|') + '" type="ci">\n  <textline size="20"/>\n</stringresponse>\n\n';
         }
         return string;
     });

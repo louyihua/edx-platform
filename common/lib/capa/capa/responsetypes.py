@@ -947,7 +947,7 @@ class NumericalResponse(LoncapaResponse):
 
 class StringResponse(LoncapaResponse):
     '''
-    This response type allows one or more answers. Use `_or_` separator to set
+    This response type allows one or more answers. Use `|` separator to set
     more than 1 answer.
 
     Example:
@@ -958,7 +958,7 @@ class StringResponse(LoncapaResponse):
         </stringresponse >
 
         # Multiple answers
-        <stringresponse answer="Martin Luther King_or_Dr. Martin Luther King Jr.">
+        <stringresponse answer="Martin Luther King|Dr. Martin Luther King Jr.">
           <textline size="20" />
         </stringresponse >
 
@@ -969,23 +969,21 @@ class StringResponse(LoncapaResponse):
     required_attributes = ['answer']
     max_inputfields = 1
     correct_answer = []
-    SEPARATOR = '_or_'
+    SEPARATOR = '|'
 
     def setup_response(self):
-        self.correct_answer = [contextualize_text(answer, self.context).strip()
-            for answer in self.xml.get('answer').split(self.SEPARATOR)]
+        self.correct_answer = contextualize_text(self.xml.get('answer'), self.context).strip()
 
     def get_score(self, student_answers):
         '''Grade a string response '''
         student_answer = student_answers[self.answer_id].strip()
-        correct = self.check_string(self.correct_answers, student_answer)
+        correct = self.check_string(self.correct_answer, student_answer)
         return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
 
     def check_string(self, expected, given):
-        regexp_string = '|'.join(expected)
         flags = re.IGNORECASE if(self.xml.get('type') == 'ci') else 0
 
-        regexp = re.compile(regexp_string, flags=flags|re.UNICODE)
+        regexp = re.compile(expected, flags=flags|re.UNICODE)
         return bool(re.search(regexp, given))
 
     def check_hint_condition(self, hxml_set, student_answers):
@@ -994,8 +992,7 @@ class StringResponse(LoncapaResponse):
         for hxml in hxml_set:
             name = hxml.get('name')
 
-            correct_answer = [contextualize_text(answer, self.context).strip()
-            for answer in hxml.get('answer').split(self.SEPARATOR)]
+            correct_answer = contextualize_text(hxml.get('answer'), self.context).strip()
 
             if self.check_string(correct_answer, given):
                 hints_to_show.append(name)
