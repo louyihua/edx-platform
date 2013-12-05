@@ -95,7 +95,7 @@ var accessible_modal = function(trigger, closeButtonId, modalId, mainPageId) {
     $("#lean_overlay, " + closeButtonId).click(function(){
       $(mainPageId).attr("aria-hidden", "false");
       $(modalId).attr("aria-hidden", "true");
-      focusedElementBeforeModal.focus()
+      focusedElementBeforeModal.focus();
     });
 
     // get modal to exit on escape key
@@ -106,6 +106,14 @@ var accessible_modal = function(trigger, closeButtonId, modalId, mainPageId) {
           e.preventDefault();
           $(closeButtonId).click();
       }
+    });
+
+    var initialFocus = true
+    $(modalId).find("iframe").on("focus", function() {
+      if (initialFocus) {
+        $(closeButtonId).focus();
+        initialFocus = false;
+      };
     });
   });
 };
