@@ -285,7 +285,7 @@ describe 'MarkdownEditingDescriptor', ->
         </problem>""")
     it 'converts StringResponse with regular expressions to xml', ->
       data = MarkdownEditingDescriptor.markdownToXml("""Who lead the civil right movement in the United States of America?
-        = \w*\.?\s*Luther King\s*.*
+        =| \w*\.?\s*Luther King\s*.*
 
         [Explanation]
         Test Explanation.
@@ -293,7 +293,7 @@ describe 'MarkdownEditingDescriptor', ->
         """)
       expect(data).toEqual("""<problem>
         <p>Who lead the civil right movement in the United States of America?</p>
-        <stringresponse answer="\w*\.?\s*Luther King\s*.*" type="ci">
+        <stringresponse answer="| \w*\.?\s*Luther King\s*.*" type="ci">
           <textline size="20"/>
         </stringresponse>
 
