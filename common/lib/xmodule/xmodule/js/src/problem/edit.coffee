@@ -247,13 +247,17 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
           string += '  <formulaequationinput />\n';
           string += '</numericalresponse>\n\n';
         } else {
-            var answers = [];
-
-            for(var i = 0; i < answersList.length; i++) {
-                answers.push(answersList[i])
+            var first_answer = answersList.shift();
+            if (first_answer[0] === '|') { // this is regexp case
+              string = '<stringresponse answer="' + first_answer.slice(1) +  '" type="ci" regexp="true">\n'
             }
-
-            string = '<stringresponse answer="' + answers.join('|') + '" type="ci">\n  <textline size="20"/>\n</stringresponse>\n\n';
+            else {
+              string = '<stringresponse answer="' + first_answer +  '" type="ci" >\n'
+            }
+            for(var i = 0; i < answersList.length; i++) {
+                string += '<additional_answer>' + answersList[i] + '</additional_answer>\n'
+            }
+            string +=  '<textline size="20"/>\n</stringresponse>\n\n';
         }
         return string;
     });

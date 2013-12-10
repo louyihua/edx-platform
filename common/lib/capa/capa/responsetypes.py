@@ -142,7 +142,6 @@ class LoncapaResponse(object):
         self.system = system
 
         self.id = xml.get('id')
-
         for abox in inputfields:
             if abox.tag not in self.allowed_inputfields:
                 msg = "%s: cannot have input field %s" % (
@@ -398,7 +397,7 @@ class LoncapaResponse(object):
 
         # Set the css class of the message <div>
         response_msg_div.set("class", "response_message")
-
+        import ipdb; ipdb.set_trace()
         return response_msg_div
 
 
@@ -969,10 +968,13 @@ class StringResponse(LoncapaResponse):
     required_attributes = ['answer']
     max_inputfields = 1
     correct_answer = []
-    SEPARATOR = '|'
 
     def setup_response(self):
-        self.correct_answer = contextualize_text(self.xml.get('answer'), self.context).strip()
+        correct_answers = [self.xml.get('answer')] + [el.text for el in self.xml.findall('additional_answer')]
+        self.correct_answer = [contextualize_text(answer, self.context).strip() for answer in correct_answers]
+
+        # remove additional_answer from xml, otherwise they will be displayed
+        [self.xml.remove(el) for el in self.xml.findall('additional_answer')]
 
     def get_score(self, student_answers):
         '''Grade a string response '''
@@ -981,10 +983,28 @@ class StringResponse(LoncapaResponse):
         return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
 
     def check_string(self, expected, given):
-        flags = re.IGNORECASE if(self.xml.get('type') == 'ci') else 0
+        """
+        Any string that starts with |, will be considered as regexp.
 
-        regexp = re.compile(expected, flags=flags|re.UNICODE)
-        return bool(re.search(regexp, given))
+        Any other string will be considered as strict string match.
+        """
+        if self.xml.get('regexp'):  # regexp match
+            flags = re.IGNORECASE if (self.xml.get('type') == 'ci') else 0
+            try:
+                regexp = re.compile('|'.join(expected), flags=flags|re.UNICODE)
+            except Exception as err:
+                msg = '[courseware.capa.responsetypes.stringresponse] error: '
+                if "bogus escape" in err.message:
+                    msg += 'regexp should not end with unescaped \\ (%s)' % (err.message)
+                log.error(msg, exc_info=True)
+                raise ResponseError, msg
+            return bool(re.search(regexp, given))
+        else:  # string match
+            if self.xml.get('type') == 'ci':
+                return given.lower() in [i.lower() for i in expected]
+            else:
+                return given in expected
+
 
     def check_hint_condition(self, hxml_set, student_answers):
         given = student_answers[self.answer_id].strip()

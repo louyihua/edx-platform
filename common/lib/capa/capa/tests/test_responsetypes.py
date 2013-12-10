@@ -504,28 +504,28 @@ class StringResponseTest(ResponseTest):
     xml_factory_class = StringResponseXMLFactory
 
     def test_regexp(self):
-        problem = self.build_problem(answer="Second", case_sensitive=False)
+        problem = self.build_problem(answer="Second", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "Second", "correct")
 
-        problem = self.build_problem(answer="sec", case_sensitive=False)
+        problem = self.build_problem(answer="sec", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "Second", "correct")
 
-        problem = self.build_problem(answer="sec", case_sensitive=True)
+        problem = self.build_problem(answer="sec", case_sensitive=True, regexp=True)
         self.assert_grade(problem, "Second", "incorrect")
 
-        problem = self.build_problem(answer="sec$", case_sensitive=False)
+        problem = self.build_problem(answer="sec$", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "Second", "incorrect")
 
-        problem = self.build_problem(answer="^sec$", case_sensitive=False)
+        problem = self.build_problem(answer="^sec$", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "Second", "incorrect")
 
-        problem = self.build_problem(answer="^Sec(ond)?$", case_sensitive=False)
+        problem = self.build_problem(answer="^Sec(ond)?$", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "Second", "correct")
 
-        problem = self.build_problem(answer="^Sec(ond)?$", case_sensitive=False)
+        problem = self.build_problem(answer="^Sec(ond)?$", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "Sec", "correct")
 
-        problem = self.build_problem(answer="tre+", case_sensitive=False)
+        problem = self.build_problem(answer="tre+", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "There is a tree", "correct")
 
         answers = [
@@ -535,12 +535,12 @@ class StringResponseTest(ResponseTest):
             "Martin Luther King"
         ]
 
-        problem = self.build_problem(answer="\w*\.?\s*Luther King\s*.*", case_sensitive=True)
+        problem = self.build_problem(answer="\w*\.?\s*Luther King\s*.*", case_sensitive=True, regexp=True)
 
         for answer in answers:
             self.assert_grade(problem, answer, "correct")
 
-        problem = self.build_problem(answer="^(-\|){2,5}$", case_sensitive=False)
+        problem = self.build_problem(answer="^(-\|){2,5}$", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "-|-|-|", "correct")
         self.assert_grade(problem, "-|", "incorrect")
         self.assert_grade(problem, "-|-|-|-|-|-|", "incorrect")
@@ -551,7 +551,12 @@ class StringResponseTest(ResponseTest):
             "^thre+",
             "^4|Four$",
         ]
-        problem = self.build_problem(answer="|".join(regexps), case_sensitive=False)
+        problem = self.build_problem(
+            answer="just_sample",
+            case_sensitive=False,
+            regexp=True,
+            additional_answers=regexps
+        )
 
         self.assert_grade(problem, "One", "correct")
         self.assert_grade(problem, "two", "correct")
@@ -564,18 +569,39 @@ class StringResponseTest(ResponseTest):
         self.assert_grade(problem, "|", "incorrect")
 
         # test unicode
-        problem = self.build_problem(answer=u"æ|ö", case_sensitive=False)
+        problem = self.build_problem(answer=u"æ", case_sensitive=False, regexp=True, additional_answers=[u'ö'])
         self.assert_grade(problem, u"æ", "correct")
         self.assert_grade(problem, u"ö", "correct")
         self.assert_grade(problem, u"î", "incorrect")
         self.assert_grade(problem, u"o", "incorrect")
 
+    def test_backslash_and_unicode_regexps(self):
+        """
+        Here we need either with r'' or write real `repr` of strings, because of the following
+        (from python docs, http://docs.python.org/2/library/re.html):
+
+        'for example, to match a literal backslash, one might have to write '\\\\' as the pattern string,
+        because the regular expression must be \\,
+        and each backslash must be expressed as \\ inside a regular Python string literal.'
+
+        Real use case on frontend in CMS.:
+            - use inputs regexp in usal regexp language
+            - this is saved to xml and readed in python as repr of that string
+            So  a\d -> a\\\\d, so this will match a1
+        """
+        problem = self.build_problem(answer=ur"5\\æ", case_sensitive=False, regexp=True)
+        self.assert_grade(problem, u"5\æ", "correct")
+
+        problem = self.build_problem(answer=u"5\\\\æ", case_sensitive=False, regexp=True)
+        self.assert_grade(problem, u"5\æ", "correct")
 
     def test_backslash(self):
-        problem = self.build_problem(answer="5\p", case_sensitive=False)
-        self.assert_grade(problem, "5\p", "correct")
-        self.assert_grade(problem, "æ ", "correct")
+        problem = self.build_problem(answer=u"a\\\\c1", case_sensitive=False, regexp=True)
+        self.assert_grade(problem, u"a\c1", "correct")
 
+    def test_special_chars(self):
+        problem = self.build_problem(answer=ur"a \s1", case_sensitive=False, regexp=True)
+        self.assert_grade(problem, u"a  1", "correct")
 
     def test_case_sensitive(self):
         # Test single answer
@@ -590,7 +616,7 @@ class StringResponseTest(ResponseTest):
 
         # Test multiple answers
         answers = ["Second", "Third", "Fourth"]
-        problem = self.build_problem(answer="|".join(answers), case_sensitive=True)
+        problem = self.build_problem(answer="sample_answer", case_sensitive=True, additional_answers=answers)
 
         for answer in answers:
             # Exact string should be correct
@@ -599,6 +625,18 @@ class StringResponseTest(ResponseTest):
         # Other strings and the lowercase version of the string are incorrect
         self.assert_grade(problem, "Other String", "incorrect")
         self.assert_grade(problem, "second", "incorrect")
+
+    def test_bogus_escape(self):
+        problem = self.build_problem(answer=u"\\", case_sensitive=False, regexp=True)
+
+        with self.assertRaises(Exception) as cm:
+            self.assert_grade(problem, u"\\", "correct")
+        exception_message = cm.exception.message
+        self.assertIn("bogus escape", exception_message)
+
+        # right way to search for \
+        problem = self.build_problem(answer=u"\\\\", case_sensitive=False, regexp=True)
+        self.assert_grade(problem, u"\\", "correct")
 
     def test_case_insensitive(self):
         # Test single answer
@@ -614,7 +652,7 @@ class StringResponseTest(ResponseTest):
 
         # Test multiple answers
         answers = ["Second", "Third", "Fourth"]
-        problem = self.build_problem(answer="|".join(answers), case_sensitive=False)
+        problem = self.build_problem(answer="sample_answer", case_sensitive=False, additional_answers=answers)
 
         for answer in answers:
             # Exact string should be correct
@@ -623,6 +661,11 @@ class StringResponseTest(ResponseTest):
 
         # Other strings and the lowercase version of the string are incorrect
         self.assert_grade(problem, "Other String", "incorrect")
+
+    def test_partial_matching(self):
+        problem = self.build_problem(answer="a2", case_sensitive=False, regexp=True, additional_answers=['\\d'])
+        self.assert_grade(problem, "a3", "correct")
+        self.assert_grade(problem, "3a", "correct")
 
     def test_hints(self):
         multiple_answers = [
@@ -635,9 +678,11 @@ class StringResponseTest(ResponseTest):
                  ("minnesota", "minn", "The state capital of Minnesota is St. Paul"),
                  ("|".join(multiple_answers), "mlk", "He lead the civil right movement in the United States of America.")]
 
-        problem = self.build_problem(answer="Michigan",
-                                     case_sensitive=False,
-                                     hints=hints)
+        problem = self.build_problem(
+            answer="Michigan",
+            case_sensitive=False,
+            hints=hints,
+        )
 
         # We should get a hint for Wisconsin
         input_dict = {'1_2_1': 'Wisconsin'}
