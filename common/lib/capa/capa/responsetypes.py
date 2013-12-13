@@ -1014,13 +1014,14 @@ class StringResponse(LoncapaResponse):
             flags = re.IGNORECASE if (self.xml.get('type') == 'ci') else 0
             try:
                 regexp = re.compile('|'.join(expected), flags=flags|re.UNICODE)
+                result = re.search(regexp, given)
             except Exception as err:
                 msg = '[courseware.capa.responsetypes.stringresponse] error: '
                 if "bogus escape" in err.message:
                     msg += 'regexp should not end with unescaped \\ (%s)' % (err.message)
                 log.error(msg, exc_info=True)
                 raise ResponseError, msg
-            return bool(re.search(regexp, given))
+            return bool(result)
         else:  # string match
             if self.xml.get('type') == 'ci':
                 return given.lower() in [i.lower() for i in expected]
