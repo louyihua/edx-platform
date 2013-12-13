@@ -142,6 +142,7 @@ class LoncapaResponse(object):
         self.system = system
 
         self.id = xml.get('id')
+
         for abox in inputfields:
             if abox.tag not in self.allowed_inputfields:
                 msg = "%s: cannot have input field %s" % (
@@ -329,6 +330,7 @@ class LoncapaResponse(object):
             hints_to_show = self.check_hint_condition(
                 rephints, student_answers)
             # can be 'on_request' or 'always' (default)
+
             hintmode = hintgroup.get('mode', 'always')
             for hintpart in hintgroup.findall('hintpart'):
                 if hintpart.get('on') in hints_to_show:
@@ -396,6 +398,7 @@ class LoncapaResponse(object):
 
         # Set the css class of the message <div>
         response_msg_div.set("class", "response_message")
+
         return response_msg_div
 
 

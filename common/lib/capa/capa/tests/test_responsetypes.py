@@ -577,17 +577,19 @@ class StringResponseTest(ResponseTest):
 
     def test_backslash_and_unicode_regexps(self):
         """
-        Here we need either with r'' or write real `repr` of strings, because of the following
+        Test some special cases of [unicode] regexps.
+
+        One needs to use either r'' strings or write real `repr` of unicode strings, because of the following
         (from python docs, http://docs.python.org/2/library/re.html):
 
         'for example, to match a literal backslash, one might have to write '\\\\' as the pattern string,
         because the regular expression must be \\,
         and each backslash must be expressed as \\ inside a regular Python string literal.'
 
-        Real use case on frontend in CMS.:
-            - use inputs regexp in usal regexp language
-            - this is saved to xml and readed in python as repr of that string
-            So  a\d -> a\\\\d, so this will match a1
+        Example of real use case in Studio:
+            a) user inputs regexp in usual regexp language,
+            b) regexp is saved to xml and is read in python as repr of that string
+            So  a\d in front-end editor will become a\\\\d in xml,  so it will match a1 as student answer.
         """
         problem = self.build_problem(answer=ur"5\\æ", case_sensitive=False, regexp=True)
         self.assert_grade(problem, u"5\æ", "correct")
@@ -701,7 +703,6 @@ class StringResponseTest(ResponseTest):
         correct_map = problem.grade_answers(input_dict)
         self.assertEquals(correct_map.get_hint('1_2_1'), "")
 
-
     def test_hints_regexp_and_answer_regexp(self):
         different_student_answers = [
             "May be it is Boston",
@@ -764,7 +765,6 @@ class StringResponseTest(ResponseTest):
         input_dict = {'1_2_1': '57'}
         correct_map = problem.grade_answers(input_dict)
         self.assertEquals(correct_map.get_hint('1_2_1'), "")
-
 
     def test_computed_hints(self):
         problem = self.build_problem(
