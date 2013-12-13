@@ -996,12 +996,19 @@ class StringResponse(LoncapaResponse):
 
     def check_string(self, expected, given):
         """
-        Any string that starts with |, will be considered as regexp.
+        Find given in expected.
 
-        Any other string will be considered as strict string match.
+        If regexp is true, use regexp search.
+        cs/ci reflects in case sensitive/insensitive search.
+        Spaces are striped.
 
-        expected: list
-        given: str
+        Args:
+            expected: list.
+            given: str.
+
+        Returns: bool
+
+        Raises: `ResponseError` if it fails to compile regular expression.
         """
         if self.xml.get('regexp'):  # regexp match
             flags = re.IGNORECASE if (self.xml.get('type') == 'ci') else 0
