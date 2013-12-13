@@ -328,7 +328,6 @@ class LoncapaResponse(object):
             rephints = hintgroup.findall(self.hint_tag)
             hints_to_show = self.check_hint_condition(
                 rephints, student_answers)
-
             # can be 'on_request' or 'always' (default)
             hintmode = hintgroup.get('mode', 'always')
             for hintpart in hintgroup.findall('hintpart'):
@@ -397,7 +396,6 @@ class LoncapaResponse(object):
 
         # Set the css class of the message <div>
         response_msg_div.set("class", "response_message")
-        import ipdb; ipdb.set_trace()
         return response_msg_div
 
 
@@ -946,20 +944,34 @@ class NumericalResponse(LoncapaResponse):
 
 class StringResponse(LoncapaResponse):
     '''
-    This response type allows one or more answers. Use `|` separator to set
-    more than 1 answer.
+    This response type allows one or more answers.
+
+    Additional answers are added by `additional_answer` tag.
+    If `regexp` is `true`, than answers and hints are treated as regexps.
 
     Example:
 
-        # One answer
-        <stringresponse answer="Michigan">
-          <textline size="20" />
-        </stringresponse >
-
-        # Multiple answers
-        <stringresponse answer="Martin Luther King|Dr. Martin Luther King Jr.">
-          <textline size="20" />
-        </stringresponse >
+        <problem>
+            <stringresponse answer="a1" type="ci" regexp="true">
+                <additional_answer>\d5</additional_answer>
+                <additional_answer>a3</additional_answer>
+                <textline size="20"/>
+                <hintgroup>
+                    <stringhint answer="a0" type="ci" name="ha0" />
+                    <stringhint answer="a4" type="ci" name="ha4" />
+                    <stringhint answer="^\d" type="ci" name="re1" />
+                    <hintpart on="ha0">
+                        <startouttext />+1<endouttext />
+                    </hintpart >
+                    <hintpart on="ha4">
+                        <startouttext />-1<endouttext />
+                    </hintpart >
+                    <hintpart on="re1">
+                        <startouttext />Any number+5<endouttext />
+                    </hintpart >
+                </hintgroup>
+            </stringresponse>
+        </problem>
 
     '''
     response_tag = 'stringresponse'
@@ -987,6 +999,9 @@ class StringResponse(LoncapaResponse):
         Any string that starts with |, will be considered as regexp.
 
         Any other string will be considered as strict string match.
+
+        expected: list
+        given: str
         """
         if self.xml.get('regexp'):  # regexp match
             flags = re.IGNORECASE if (self.xml.get('type') == 'ci') else 0
@@ -1012,9 +1027,9 @@ class StringResponse(LoncapaResponse):
         for hxml in hxml_set:
             name = hxml.get('name')
 
-            correct_answer = contextualize_text(hxml.get('answer'), self.context).strip()
+            hinted_answer = contextualize_text(hxml.get('answer'), self.context).strip()
 
-            if self.check_string(correct_answer, given):
+            if self.check_string([hinted_answer], given):
                 hints_to_show.append(name)
         log.debug('hints_to_show = %s', hints_to_show)
         return hints_to_show

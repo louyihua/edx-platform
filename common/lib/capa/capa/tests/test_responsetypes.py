@@ -667,21 +667,66 @@ class StringResponseTest(ResponseTest):
         self.assert_grade(problem, "a3", "correct")
         self.assert_grade(problem, "3a", "correct")
 
-    def test_hints(self):
-        multiple_answers = [
-            "Martin Luther King Junior",
-            "Doctor Martin Luther King Junior",
-            "Dr. Martin Luther King Jr.",
-            "Martin Luther King"
-        ]
-        hints = [("wisconsin", "wisc", "The state capital of Wisconsin is Madison"),
-                 ("minnesota", "minn", "The state capital of Minnesota is St. Paul"),
-                 ("|".join(multiple_answers), "mlk", "He lead the civil right movement in the United States of America.")]
 
+    def test_hints(self):
+
+        hints = [
+            ("wisconsin", "wisc", "The state capital of Wisconsin is Madison"),
+            ("minnesota", "minn", "The state capital of Minnesota is St. Paul"),
+        ]
         problem = self.build_problem(
             answer="Michigan",
             case_sensitive=False,
             hints=hints,
+        )
+         # We should get a hint for Wisconsin
+        input_dict = {'1_2_1': 'Wisconsin'}
+        correct_map = problem.grade_answers(input_dict)
+        self.assertEquals(correct_map.get_hint('1_2_1'),
+                          "The state capital of Wisconsin is Madison")
+
+        # We should get a hint for Minnesota
+        input_dict = {'1_2_1': 'Minnesota'}
+        correct_map = problem.grade_answers(input_dict)
+        self.assertEquals(correct_map.get_hint('1_2_1'),
+                          "The state capital of Minnesota is St. Paul")
+
+        # We should NOT get a hint for Michigan (the correct answer)
+        input_dict = {'1_2_1': 'Michigan'}
+        correct_map = problem.grade_answers(input_dict)
+        self.assertEquals(correct_map.get_hint('1_2_1'), "")
+
+        # We should NOT get a hint for any other string
+        input_dict = {'1_2_1': 'California'}
+        correct_map = problem.grade_answers(input_dict)
+        self.assertEquals(correct_map.get_hint('1_2_1'), "")
+
+
+    def test_hints_regexp_and_answer_regexp(self):
+        different_student_answers = [
+            "May be it is Boston",
+            "Boston, really?",
+            "Boston",
+            "OK, I see, this is Boston",
+        ]
+
+        # if problem has regexp = true, it will accept hints written in regexp
+        hints = [
+            ("wisconsin", "wisc", "The state capital of Wisconsin is Madison"),
+            ("minnesota", "minn", "The state capital of Minnesota is St. Paul"),
+            (".*Boston.*", "bst", "First letter of correct answer is M."),
+            ('^\\d9$', "numbers", "Should not end with 9."),
+        ]
+
+        additional_answers = [
+            '^\\d[0-8]$',
+        ]
+        problem = self.build_problem(
+            answer="Michigan",
+            case_sensitive=False,
+            hints=hints,
+            additional_answers=additional_answers,
+            regexp=True
         )
 
         # We should get a hint for Wisconsin
@@ -707,11 +752,18 @@ class StringResponseTest(ResponseTest):
         self.assertEquals(correct_map.get_hint('1_2_1'), "")
 
         # We should get the same hint for each answer
-        for answer in multiple_answers:
+        for answer in different_student_answers:
             input_dict = {'1_2_1': answer}
             correct_map = problem.grade_answers(input_dict)
-            self.assertEquals(correct_map.get_hint('1_2_1'),
-                              "He lead the civil right movement in the United States of America.")
+            self.assertEquals(correct_map.get_hint('1_2_1'), "First letter of correct answer is M.")
+
+        input_dict = {'1_2_1': '59'}
+        correct_map = problem.grade_answers(input_dict)
+        self.assertEquals(correct_map.get_hint('1_2_1'), "Should not end with 9.")
+
+        input_dict = {'1_2_1': '57'}
+        correct_map = problem.grade_answers(input_dict)
+        self.assertEquals(correct_map.get_hint('1_2_1'), "")
 
 
     def test_computed_hints(self):
