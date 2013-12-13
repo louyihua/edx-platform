@@ -302,21 +302,34 @@ Sample Problem:
   </problem>
 
 
-Note that this response type allows to add more than one answer. Use '**|**' delimiter to add more answers.
+This response type allows to add more than one answer. Use 'additional_answer' tag to add more answers.
+If you will set regexp to true, any answer and hint will be treated as regexp.
 
 **Template**
 
 .. code-block:: xml
 
-  <problem>
-    <stringresponse answer="ANSWER1|ANSWER2|ANSWER3" type="ci">
-      <textline size="20"/>
-    </stringresponse>
-    <solution>
-      <div class="detailed-solution">
-      </div>
-    </solution>
-  </problem>
+    <problem>
+        <stringresponse answer="a1" type="ci" regexp="true">
+            <additional_answer>\d5</additional_answer>
+            <additional_answer>a3</additional_answer>
+            <textline size="20"/>
+            <hintgroup>
+                <stringhint answer="a0" type="ci" name="ha0" />
+                <stringhint answer="a4" type="ci" name="ha4" />
+                <stringhint answer="^\d" type="ci" name="re1" />
+                <hintpart on="ha0">
+                    <startouttext />+1<endouttext />
+                </hintpart >
+                <hintpart on="ha4">
+                    <startouttext />-1<endouttext />
+                </hintpart >
+                <hintpart on="re1">
+                    <startouttext />Any number+5<endouttext />
+                </hintpart >
+            </hintgroup>
+        </stringresponse>
+    </problem>
 
 
 **XML Attribute Information**
@@ -329,6 +342,7 @@ Note that this response type allows to add more than one answer. Use '**|**' del
 
   .. image:: ../Images/stringresponse2.png
 
+<additional_answer> - Can be unlimited number of this tags. Any tag adds one more additional answer for matching.
 
 .. raw:: latex
 
