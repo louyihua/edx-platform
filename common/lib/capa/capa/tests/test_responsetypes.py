@@ -503,6 +503,28 @@ class StringResponseTest(ResponseTest):
     from capa.tests.response_xml_factory import StringResponseXMLFactory
     xml_factory_class = StringResponseXMLFactory
 
+
+    def test_backward_compatibility_for_multiple_asnwers(self):
+        """
+        Remove this test, once support for _or_ separator will be removed.
+        """
+
+        answers = ["Second", "Third", "Fourth"]
+        problem = self.build_problem(answer="_or_".join(answers), case_sensitive=True)
+
+        for answer in answers:
+            # Exact string should be correct
+            self.assert_grade(problem, answer, "correct")
+        # Other strings and the lowercase version of the string are incorrect
+        self.assert_grade(problem, "Other String", "incorrect")
+
+        problem = self.build_problem(answer="_or_".join(answers), case_sensitive=False)
+        for answer in answers:
+            # Exact string should be correct
+            self.assert_grade(problem, answer, "correct")
+            self.assert_grade(problem, answer.lower(), "correct")
+        self.assert_grade(problem, "Other String", "incorrect")
+
     def test_regexp(self):
         problem = self.build_problem(answer="Second", case_sensitive=False, regexp=True)
         self.assert_grade(problem, "Second", "correct")

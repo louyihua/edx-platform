@@ -984,7 +984,18 @@ class StringResponse(LoncapaResponse):
     max_inputfields = 1
     correct_answer = []
 
+    def setup_response_backward(self):
+        self.correct_answer = [contextualize_text(answer, self.context).strip()
+            for answer in self.xml.get('answer').split('_or_')]
+
     def setup_response(self):
+
+        # backward compatibility, can be removed in future, it is up to @Lyla Fisher.
+        if '_or_' in self.xml.get('answer'):
+            self.setup_response_backward()
+            return
+        # end of backward compatibility
+
         correct_answers = [self.xml.get('answer')] + [el.text for el in self.xml.findall('additional_answer')]
         self.correct_answer = [contextualize_text(answer, self.context).strip() for answer in correct_answers]
 
@@ -996,6 +1007,11 @@ class StringResponse(LoncapaResponse):
         student_answer = student_answers[self.answer_id].strip()
         correct = self.check_string(self.correct_answer, student_answer)
         return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
+
+    def check_string_backward(self, expected, given):
+        if self.xml.get('type') == 'ci':
+            return given.lower() in [i.lower() for i in expected]
+        return given in expected
 
     def check_string(self, expected, given):
         """
@@ -1012,7 +1028,16 @@ class StringResponse(LoncapaResponse):
         Returns: bool
 
         Raises: `ResponseError` if it fails to compile regular expression.
+
+        Note: for old code in master, which supports _or_ separator,
+        we add some code for backward compatibility. Should be removed soon.
+        When to remove it,  is up to Lyla FIsher.
         """
+        # backward compatibility, should be removed in future.
+        if '_or_' in self.xml.get('answer'):
+            return self.check_string_backward(expected, given)
+        # end of backward compatibility
+
         if self.xml.get('regexp'):  # regexp match
             flags = re.IGNORECASE if (self.xml.get('type') == 'ci') else 0
             try:
