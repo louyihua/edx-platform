@@ -985,8 +985,9 @@ class StringResponse(LoncapaResponse):
     correct_answer = []
 
     def setup_response_backward(self):
-        self.correct_answer = [contextualize_text(answer, self.context).strip()
-            for answer in self.xml.get('answer').split('_or_')]
+        self.correct_answer = [
+            contextualize_text(answer, self.context).strip() for answer in self.xml.get('answer').split('_or_')
+        ]
 
     def setup_response(self):
 

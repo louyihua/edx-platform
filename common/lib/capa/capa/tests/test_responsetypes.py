@@ -503,7 +503,6 @@ class StringResponseTest(ResponseTest):
     from capa.tests.response_xml_factory import StringResponseXMLFactory
     xml_factory_class = StringResponseXMLFactory
 
-
     def test_backward_compatibility_for_multiple_asnwers(self):
         """
         Remove this test, once support for _or_ separator will be removed.
@@ -690,7 +689,6 @@ class StringResponseTest(ResponseTest):
         problem = self.build_problem(answer="a2", case_sensitive=False, regexp=True, additional_answers=['\\d'])
         self.assert_grade(problem, "a3", "correct")
         self.assert_grade(problem, "3a", "correct")
-
 
     def test_hints(self):
 
