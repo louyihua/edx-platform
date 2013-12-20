@@ -6,13 +6,14 @@ from lettuce import before, after, world
 from django.conf import settings
 from terrain.stubs.youtube import StubYouTubeService
 from terrain.stubs.xqueue import StubXQueueService
-
+from terrain.stubs.lti import StubLtiService
 
 USAGE = "USAGE: python -m fakes.start SERVICE_NAME PORT_NUM"
 
 SERVICES = {
     "youtube": {"port": settings.YOUTUBE_PORT, "class": StubYouTubeService},
     "xqueue": {"port": settings.XQUEUE_PORT, "class": StubXQueueService},
+    "lti": {"port": settings.LTI_PORT, "class": StubLtiService},
 }
 
 

@@ -10,7 +10,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-@before.all
+#@before.all
 def setup_mock_lti_server():
 
     server_host = '127.0.0.1'
@@ -46,7 +46,7 @@ def setup_mock_lti_server():
     world.lti_server = server
 
 
-@after.all
+#@after.all
 def teardown_mock_lti_server(total):
 
     # Stop the LTI server and free up the port
