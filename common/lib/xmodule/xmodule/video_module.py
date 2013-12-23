@@ -94,11 +94,11 @@ class VideoFields(object):
     )
     #front-end code of video player checks logical validity of (start_time, end_time) pair.
 
-    source = String(
+    source = Boolean(
         help="The external URL to download the video. This appears as a link beneath the video.",
         display_name="Download Video",
         scope=Scope.settings,
-        default=""
+        default=True
     )
     html5_sources = List(
         help="A list of filenames to be used with HTML5 video. The first supported filetype will be displayed.",
@@ -165,7 +165,12 @@ class VideoModule(VideoFields, XModule):
 
         get_ext = lambda filename: filename.rpartition('.')[-1]
         sources = {get_ext(src): src for src in self.html5_sources}
-        sources['main'] = self.source
+
+        if self.source:
+            try:
+                sources['main'] = self.html5_sources[0:1][0]
+            except IndexError:
+                pass
 
         return self.system.render_template('video.html', {
             'youtube_streams': _create_youtube_string(self),
