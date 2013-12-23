@@ -20,8 +20,12 @@ class StubLtiServiceTest(unittest.TestCase):
     """
 
     def setUp(self):
-        self.server = StubYouTubeService()
-        self.url = "http://127.0.0.1:{0}/".format(self.server.port)
+        self.server = StubLtiService()
+
+        lti_base = self.server.config('lti_base', self.server.DEFAULT_LTI_BASE)
+        lti_endpoint = self.server.config('lti_endpoint', self.server.DEFAULT_LTI_ENDPOINT)
+        self.uri = lti_base + lti_endpoint
+
          # Flag for creating right callback_url
         self.server.set_config('test_mode', True)
         self.server.set_config('run_inside_unittest_flag', True)
@@ -38,11 +42,8 @@ class StubLtiServiceTest(unittest.TestCase):
             'oauth_nonce': '',
             'oauth_timestamp': '',
         }
-        lti_base = self.server.config('lti_base', self.DEFAULT_LTI_BASE)
-        lti_endpoint = self.server.config('lti_endpoint', self.DEFAULT_LTI_ENDPOINT)
-        uri = lti_base + lti_endpoint
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(uri, data=payload, headers=headers)
+        response = requests.post(self.uri, data=payload, headers=headers)
         self.assertIn('Wrong LTI signature', response.content)
 
     def test_wrong_signature(self):
@@ -67,9 +68,8 @@ class StubLtiServiceTest(unittest.TestCase):
             'lis_result_sourcedid': '',
             'resource_link_id':'',
         }
-        uri = self.server.oauth_settings['lti_base'] + self.server.oauth_settings['lti_endpoint']
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(uri, data=payload, headers=headers)
+        response = requests.post(self.uri, data=payload, headers=headers)
         self.assertIn('Wrong LTI signature', response.content)
 
 
@@ -95,10 +95,8 @@ class StubLtiServiceTest(unittest.TestCase):
             'resource_link_id':'',
         }
         self.server.check_oauth_signature = Mock(return_value=True)
-
-        uri = self.server.oauth_settings['lti_base'] + self.server.oauth_settings['lti_endpoint']
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(uri, data=payload, headers=headers)
+        response = requests.post(self.uri, data=payload, headers=headers)
         self.assertIn('This is LTI tool. Success.', response.content)
 
     def test_send_graded_result(self):
@@ -121,13 +119,10 @@ class StubLtiServiceTest(unittest.TestCase):
             'resource_link_id':'',
         }
         self.server.check_oauth_signature = Mock(return_value=True)
-
-        uri = self.server.oauth_settings['lti_base'] + self.server.oauth_settings['lti_endpoint']
-        #this is the uri for sending grade from lti
+        # This is the uri for sending grade from lti.
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(uri, data=payload, headers=headers)
+        response = requests.post(self.uri, data=payload, headers=headers)
         self.assertIn('This is LTI tool. Success.', response.content)
-
         self.server.grade_data['TC answer'] = "Test response"
         graded_response = requests.post('http://127.0.0.1:8034/grade')
         self.assertIn('Test response', graded_response.content)
