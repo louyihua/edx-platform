@@ -9,7 +9,6 @@ not possible to have this LTI multiple times on a single page in LMS.
 
 """
 
-from .http import StubHttpRequestHandler, StubHttpService
 from uuid import uuid4
 import textwrap
 import urlparse
@@ -21,11 +20,17 @@ import mock
 import sys
 import requests
 import textwrap
+from django.conf import settings
+from .http import StubHttpRequestHandler, StubHttpService
 
 class StubLtiHandler(StubHttpRequestHandler):
     """
     A handler for LTI POST and GET requests.
     """
+    DEFAULT_CLIENT_KEY = 'test_client_key'
+    DEFAULT_CLIENT_SECRET = 'test_client_secret'
+    DEFAULT_LTI_BASE = 'http://127.0.0.1:{}/'.format(settings.LTI_PORT)
+    DEFAULT_LTI_ENDPOINT = 'correct_lti_endpoint'
 
     def do_GET(self):
         """
@@ -52,7 +57,7 @@ class StubLtiHandler(StubHttpRequestHandler):
         elif self._is_correct_lti_request():
             self.post_dict = self._post_dict()
             params = {k: v for k, v in self.post_dict.items() if k != 'oauth_signature'}
-            if self.server.check_oauth_signature(params, self.post_dict.get('oauth_signature', "")):
+            if self.check_oauth_signature(params, self.post_dict.get('oauth_signature', "")):
                 status_message = "This is LTI tool. Success."
                 # set data for grades what need to be stored as server data
                 if 'lis_outcome_service_url' in self.post_dict:
@@ -138,7 +143,7 @@ class StubLtiHandler(StubHttpRequestHandler):
         """)
         data = payload.format(**values)
         # get relative part, because host name is different in a) manual tests b) acceptance tests c) demos
-        if getattr(self, 'test_mode', None):
+        if self.server.config('test_mode', None):
             relative_url = urlparse.urlparse(self.server.grade_data['callback_url']).path
             url = self.server.referer_host + relative_url
         else:
@@ -149,7 +154,7 @@ class StubLtiHandler(StubHttpRequestHandler):
 
         # We can't mock requests in unit tests, because we use them, but we need
         # them to be mocked only for this one case.
-        if getattr(self.server, 'run_inside_unittest_flag', None):
+        if self.server.config('run_inside_unittest_flag', None):
             response = mock.Mock(status_code=200, url=url, data=data, headers=headers)
             return response
 
@@ -206,15 +211,18 @@ class StubLtiHandler(StubHttpRequestHandler):
         '''
         If url to LTI Provider is correct.
         '''
-        return self.server.oauth_settings['lti_endpoint'] in self.path
+        lti_endpoint = self.server.config('lti_endpoint', self.DEFAULT_LTI_ENDPOINT)
+        return lti_endpoint in self.path
 
     def oauth_sign(self, url, body):
         """
         Signs request and returns signed body and headers.
         """
+        client_key = self.server.config('client_key', self.DEFAULT_CLIENT_KEY)
+        client_secret = self.server.config('client_secret', self.DEFAULT_CLIENT_SECRET)
         client = oauthlib.oauth1.Client(
-            client_key=unicode(self.server.oauth_settings['client_key']),
-            client_secret=unicode(self.server.oauth_settings['client_secret'])
+            client_key=unicode(client_key),
+            client_secret=unicode(client_secret)
         )
         headers = {
             # This is needed for body encoding:
@@ -234,14 +242,6 @@ class StubLtiHandler(StubHttpRequestHandler):
         headers = headers['Authorization'] + ', oauth_body_hash="{}"'.format(oauth_body_hash)
         return headers
 
-
-class StubLtiService(StubHttpService):
-    '''
-    A stub LTI provider server that responds
-    to POST and GET requests to localhost.
-    '''
-    HANDLER_CLASS = StubLtiHandler
-
     def check_oauth_signature(self, params, client_signature):
         '''
         Checks oauth signature from client.
@@ -258,8 +258,10 @@ class StubLtiService(StubHttpService):
         Returns `True` if signatures are correct, otherwise `False`.
 
         '''
-        client_secret = unicode(self.oauth_settings['client_secret'])
-        url = self.oauth_settings['lti_base'] + self.oauth_settings['lti_endpoint']
+        client_secret = unicode(self.server.config('client_secret', self.DEFAULT_CLIENT_SECRET))
+        lti_base = self.server.config('lti_base', self.DEFAULT_LTI_BASE)
+        lti_endpoint = self.server.config('lti_endpoint', self.DEFAULT_LTI_ENDPOINT)
+        url = lti_base + lti_endpoint
 
         request = mock.Mock()
 
@@ -268,4 +270,13 @@ class StubLtiService(StubHttpService):
         request.http_method = u'POST'
         request.signature = unicode(client_signature)
         return signature.verify_hmac_sha1(request, client_secret)
+
+
+class StubLtiService(StubHttpService):
+    '''
+    A stub LTI provider server that responds
+    to POST and GET requests to localhost.
+    '''
+
+    HANDLER_CLASS = StubLtiHandler
 

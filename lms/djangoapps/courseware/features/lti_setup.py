@@ -1,7 +1,7 @@
 #pylint: disable=C0111
 #pylint: disable=W0621
 
-from courseware.mock_lti_server.mock_lti_server import MockLTIServer
+#from courseware.mock_lti_server.mock_lti_server import MockLTIServer
 from lettuce import before, after, world
 from django.conf import settings
 import threading
