@@ -42,7 +42,7 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
                     else if(model.getType() === MetadataModel.RELATIVE_TIME_TYPE) {
                         new Metadata.RelativeTime(data);
                     }
-                    else if(model.getType() === 'Checkbox') {
+                    else if(model.getType() === MetadataModel.CHECKBOX_TYPE) {
                         new Metadata.Checkbox(data);
                     }
                     else {
@@ -387,16 +387,18 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
         templateName: "metadata-checkbox-entry",
 
         getValueFromEditor: function () {
-            return JSON.stringify(_.map(
-                this.$el.find(":checked"),
-                function (element) {
-                    return $(element).data('value');
-                }
-            ));
+            return JSON.stringify(
+                _.map(
+                    this.$el.find(":checked"),
+                    function (element) {
+                        return $(element).data('value');
+                    }
+                )
+            );
         },
 
         setValueInEditor: function (value) {
-            var value = (value) ? JSON.parse(value) : Array(),
+            var values = (value) ? JSON.parse(value) : Array(),
                 valuesList = _.pluck(value, 'value');
 
             this.$el.find('#' + this.uniqueId + " .input")
