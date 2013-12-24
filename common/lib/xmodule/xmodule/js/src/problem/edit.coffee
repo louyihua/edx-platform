@@ -247,9 +247,9 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
           string += '  <formulaequationinput />\n';
           string += '</numericalresponse>\n\n';
         } else {
-            var firstAnswer = answersList.shift().trim();
+            var firstAnswer = answersList.shift();
             if (firstAnswer[0] === '|') { // this is regexp case
-              string = '<stringresponse answer="' + firstAnswer.slice(1) +  '" type="ci regexp" >\n'
+              string = '<stringresponse answer="' + firstAnswer.slice(1).trim() +  '" type="ci regexp" >\n'
             }
             else {
               string = '<stringresponse answer="' + firstAnswer +  '" type="ci" >\n'
