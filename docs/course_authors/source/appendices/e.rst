@@ -110,7 +110,7 @@ differences between the two include the following.
 
 • The Option Response drop-down input format makes it more likely for students to think of an answer and then search for it, rather than relying purely on recognition to answer the question.
 
-• The Multiple Choice format is more explicit and visual. This makes it a more appropriate choice for presenting tricky or complicated answer options which areintended to get the student to pause and think.
+• The Multiple Choice format is more explicit and visual. This makes it a more appropriate choice for presenting tricky or complicated answer options which are intended to get the student to pause and think.
 
 Sample Problem:
 
@@ -302,15 +302,20 @@ Sample Problem:
   </problem>
 
 
-This response type allows to add more than one answer. Use 'additional_answer' tag to add more answers.
-If you will set regexp to true, any answer and hint will be treated as regexp.
+This response type allows to add more than one answer. Use `additional_answer`  tag to add more answers.
+
+You can add `regexp` to value of `type` attribute, for example: `type="ci regexp"` or `type="regexp"` or `type="regexp cs"`.
+In this case, any answer and hint will be treated as regular expressions.
+Regular expression has to match anywhere in the answer, for answer to be correct.
+Student answers "foobar", "o foo" or " ==foo==", will be correct if teacher has set answer="foo" with type="regexp".
+To force a complete match (whole string match), one has to specify the answer like "^foo$".
 
 **Template**
 
 .. code-block:: xml
 
     <problem>
-        <stringresponse answer="a1" type="ci" regexp="true">
+        <stringresponse answer="a1" type="ci regexp">
             <additional_answer>\d5</additional_answer>
             <additional_answer>a3</additional_answer>
             <textline size="20"/>
@@ -336,7 +341,56 @@ If you will set regexp to true, any answer and hint will be treated as regexp.
 
 <stringresponse>
 
-  .. image:: ../Images/stringresponse.png
+ .. raw:: html
+
+      <table border="1" class="docutils" width="60%">
+        <colgroup>
+        <col width="15%">
+        <col width="75%">
+        <col width="10%">
+        </colgroup>
+        <thead valign="bottom">
+        <tr class="row-odd"><th class="head">Attribute</th>
+        <th class="head">Description</th>
+        <th class="head">Notes</th>
+        </tr>
+        </thead>
+        <tbody valign="top">
+        <tr class="row-even"><td>type</td>
+        <td>(optional) “[ci] [regex]”. Add “ci” if the student response should be graded case-insensitively. The default is to take case into consideration when grading. Add “regexp” for correct answer to be treated as regular expression.</td>
+        <td>&nbsp;</td>
+        </tr>
+        <tr class="row-odd"><td>answer</td>
+        <td>The string that is used to compare with student answer. If "regexp" is not presented in value of <em>type</em> attribute, student should enter exact value of this attribute in order to get credit. If  "regexp" is presented in value of <em>type</em> attribute, value of <em>answer</em> is treated as regular expression and search for this expression in student answer will be done. If search is successful, student will get credit.</td>
+        <td>&nbsp;</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table border="1" class="docutils" width="60%">
+        <colgroup>
+        <col width="15%">
+        <col width="75%">
+        <col width="10%">
+        </colgroup>
+        <thead valign="bottom">
+        <tr class="row-odd"><th class="head">Children</th>
+        <th class="head">Description</th>
+        <th class="head">Notes</th>
+        </tr>
+        </thead>
+        <tbody valign="top">
+        <tr class="row-even"><td>textline</td>
+        <td>used to accept student input. See description below.</td>
+        <td>&nbsp;</td>
+        </tr>
+        <tr class="row-odd"><td>additional_answer</td>
+        <td>todo</td>
+        <td>&nbsp;</td>
+        </tr>
+        </tbody>
+      </table>
+
 
 <textline>
 

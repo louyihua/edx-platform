@@ -950,32 +950,32 @@ class StringResponse(LoncapaResponse):
     This response type allows one or more answers.
 
     Additional answers are added by `additional_answer` tag.
-    If `regexp` is `true`, than answers and hints are treated as regexps.
+    If `regexp` is in `type` attribute, than answers and hints are treated as regular expressions.
 
-    Example:
+    Examples:
+        <stringresponse answer="Michigan">
+            <textline size="20" />
+        </stringresponse >
 
-        <problem>
-            <stringresponse answer="a1" type="ci" regexp="true">
-                <additional_answer>\d5</additional_answer>
-                <additional_answer>a3</additional_answer>
-                <textline size="20"/>
-                <hintgroup>
-                    <stringhint answer="a0" type="ci" name="ha0" />
-                    <stringhint answer="a4" type="ci" name="ha4" />
-                    <stringhint answer="^\d" type="ci" name="re1" />
-                    <hintpart on="ha0">
-                        <startouttext />+1<endouttext />
-                    </hintpart >
-                    <hintpart on="ha4">
-                        <startouttext />-1<endouttext />
-                    </hintpart >
-                    <hintpart on="re1">
-                        <startouttext />Any number+5<endouttext />
-                    </hintpart >
-                </hintgroup>
-            </stringresponse>
-        </problem>
-
+        <stringresponse answer="a1" type="ci regexp">
+            <additional_answer>\d5</additional_answer>
+            <additional_answer>a3</additional_answer>
+            <textline size="20"/>
+            <hintgroup>
+                <stringhint answer="a0" type="ci" name="ha0" />
+                <stringhint answer="a4" type="ci" name="ha4" />
+                <stringhint answer="^\d" type="ci" name="re1" />
+                <hintpart on="ha0">
+                    <startouttext />+1<endouttext />
+                </hintpart >
+                <hintpart on="ha4">
+                    <startouttext />-1<endouttext />
+                </hintpart >
+                <hintpart on="re1">
+                    <startouttext />Any number+5<endouttext />
+                </hintpart >
+            </hintgroup>
+        </stringresponse>
     '''
     response_tag = 'stringresponse'
     hint_tag = 'stringhint'
@@ -991,8 +991,12 @@ class StringResponse(LoncapaResponse):
 
     def setup_response(self):
 
+        self.backward = '_or_' in self.xml.get('answer').lower()
+        self.regexp = 'regexp' in self.xml.get('type').lower().split(' ')
+        self.case_insensitive = 'ci' in self.xml.get('type').lower().split(' ')
+
         # backward compatibility, can be removed in future, it is up to @Lyla Fisher.
-        if '_or_' in self.xml.get('answer'):
+        if self.backward:
             self.setup_response_backward()
             return
         # end of backward compatibility
@@ -1001,7 +1005,8 @@ class StringResponse(LoncapaResponse):
         self.correct_answer = [contextualize_text(answer, self.context).strip() for answer in correct_answers]
 
         # remove additional_answer from xml, otherwise they will be displayed
-        [self.xml.remove(el) for el in self.xml.findall('additional_answer')]
+        for el in self.xml.findall('additional_answer'):
+            self.xml.remove(el)
 
     def get_score(self, student_answers):
         '''Grade a string response '''
@@ -1010,7 +1015,7 @@ class StringResponse(LoncapaResponse):
         return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
 
     def check_string_backward(self, expected, given):
-        if self.xml.get('type') == 'ci':
+        if self.case_insensitive:
             return given.lower() in [i.lower() for i in expected]
         return given in expected
 
@@ -1018,9 +1023,9 @@ class StringResponse(LoncapaResponse):
         """
         Find given in expected.
 
-        If regexp is true, use regexp search.
-        cs/ci reflects in case sensitive/insensitive search.
-        Spaces are striped.
+        If self.regexp is true, regular expression search is used.
+        if self.case_insensitive is true, case insensitive search is used, otherwise case sensitive search is used.
+        Spaces around values of attributes are stripped in XML parsing step.
 
         Args:
             expected: list.
@@ -1030,17 +1035,16 @@ class StringResponse(LoncapaResponse):
 
         Raises: `ResponseError` if it fails to compile regular expression.
 
-        Note: for old code in master, which supports _or_ separator,
-        we add some code for backward compatibility. Should be removed soon.
-        When to remove it,  is up to Lyla FIsher.
+        Note: for old code, which supports _or_ separator, we add some  backward compatibility handling.
+        Should be removed soon. When to remove it, is up to Lyla Fisher.
         """
         # backward compatibility, should be removed in future.
-        if '_or_' in self.xml.get('answer'):
+        if self.backward:
             return self.check_string_backward(expected, given)
         # end of backward compatibility
 
-        if self.xml.get('regexp'):  # regexp match
-            flags = re.IGNORECASE if (self.xml.get('type') == 'ci') else 0
+        if self.regexp:  # regexp match
+            flags = re.IGNORECASE if self.case_insensitive else 0
             try:
                 regexp = re.compile('|'.join(expected), flags=flags | re.UNICODE)
                 result = re.search(regexp, given)
@@ -1052,7 +1056,7 @@ class StringResponse(LoncapaResponse):
                 raise ResponseError(msg)
             return bool(result)
         else:  # string match
-            if self.xml.get('type') == 'ci':
+            if self.case_insensitive:
                 return given.lower() in [i.lower() for i in expected]
             else:
                 return given in expected

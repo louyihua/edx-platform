@@ -710,11 +710,10 @@ class StringResponseXMLFactory(ResponseXMLFactory):
         # Set the answer attribute
         response_element.set("answer", unicode(answer))
 
-        # Set the case sensitivity
-        response_element.set("type", "cs" if case_sensitive else "ci")
-
-        # Set the regexp
-        response_element.set("regexp", "true") if regexp else None
+        # Set the case sensitivity and regexp:
+        type_value = "cs" if case_sensitive else "ci"
+        type_value += ' regexp' if regexp else ''
+        response_element.set("type", type_value)
 
         # Add the hints if specified
         if hint_list or hint_fn:

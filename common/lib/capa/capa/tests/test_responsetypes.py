@@ -503,7 +503,7 @@ class StringResponseTest(ResponseTest):
     from capa.tests.response_xml_factory import StringResponseXMLFactory
     xml_factory_class = StringResponseXMLFactory
 
-    def test_backward_compatibility_for_multiple_asnwers(self):
+    def test_backward_compatibility_for_multiple_answers(self):
         """
         Remove this test, once support for _or_ separator will be removed.
         """
