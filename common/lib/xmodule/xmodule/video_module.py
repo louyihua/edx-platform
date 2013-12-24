@@ -16,7 +16,6 @@ import logging
 from lxml import etree
 from pkg_resources import resource_string
 import datetime
-import time
 import copy
 
 from django.http import Http404
@@ -94,11 +93,18 @@ class VideoFields(object):
     )
     #front-end code of video player checks logical validity of (start_time, end_time) pair.
 
-    source = Boolean(
+    source = String(
         help="The external URL to download the video. This appears as a link beneath the video.",
         display_name="Download Video",
         scope=Scope.settings,
-        default=True
+        default='',
+        values=[
+            {"value": "allow"},
+            {"display_name": "Always", "value": "always"},
+            {"display_name": "On Reset", "value": "onreset"},
+            {"display_name": "Never", "value": "never"},
+            {"display_name": "Per Student", "value": "per_student"}
+        ]
     )
     html5_sources = List(
         help="A list of filenames to be used with HTML5 video. The first supported filetype will be displayed.",
@@ -409,6 +415,13 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
 
         return field_data
 
+    @property
+    def editable_metadata_fields(self):
+        editable_fields = super(VideoDescriptor, self).editable_metadata_fields
+        for field in editable_fields.values():
+            if field['field_name'] == 'source':
+                field['type'] = 'Checkbox'
+        return editable_fields
 
 def _create_youtube_string(module):
     """

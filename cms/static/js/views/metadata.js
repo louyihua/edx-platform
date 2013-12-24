@@ -42,6 +42,9 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
                     else if(model.getType() === MetadataModel.RELATIVE_TIME_TYPE) {
                         new Metadata.RelativeTime(data);
                     }
+                    else if(model.getType() === 'Checkbox') {
+                        new Metadata.Checkbox(data);
+                    }
                     else {
                         // Everything else is treated as GENERIC_TYPE, which uses String editor.
                         new Metadata.String(data);
@@ -373,6 +376,38 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
             this.$el.find('input').val(value);
         }
     });
+
+    Metadata.Checkbox = AbstractEditor.extend({
+
+        events : {
+            "change .input" : "updateModel",
+            "click .setting-clear" : "clear"
+        },
+
+        templateName: "metadata-checkbox-entry",
+
+        getValueFromEditor: function () {
+            return JSON.stringify(_.map(
+                this.$el.find(":checked"),
+                function (element) {
+                    return $(element).data('value');
+                }
+            ));
+        },
+
+        setValueInEditor: function (value) {
+            var value = (value) ? JSON.parse(value) : Array(),
+                valuesList = _.pluck(value, 'value');
+
+            this.$el.find('#' + this.uniqueId + " .input")
+                .prop('checked', false)
+                .filter(function() {
+                    return $.inArray(this.value, valuesList) !== -1;
+                })
+                .prop('checked', true);
+        }
+    });
+
 
     return Metadata;
 });
