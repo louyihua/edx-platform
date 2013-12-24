@@ -249,7 +249,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
         } else {
             var first_answer = answersList.shift();
             if (first_answer[0] === '|') { // this is regexp case
-              string = '<stringresponse answer="' + first_answer.slice(1) +  '" type="ci" regexp="true" >\n'
+              string = '<stringresponse answer="' + first_answer.slice(1) +  '" type="ci regexp" >\n'
             }
             else {
               string = '<stringresponse answer="' + first_answer +  '" type="ci" >\n'
