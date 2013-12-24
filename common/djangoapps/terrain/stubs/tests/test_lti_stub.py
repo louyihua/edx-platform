@@ -2,14 +2,14 @@
 Unit tests for stub LTI implementation.
 """
 import mock
-from mock import Mock
+from mock import Mock, patch
 import unittest
 import threading
 import textwrap
 import urllib
 import requests
+from django.conf import settings
 from terrain.stubs.lti import StubLtiService
-
 
 class StubLtiServiceTest(unittest.TestCase):
     """
@@ -21,11 +21,7 @@ class StubLtiServiceTest(unittest.TestCase):
 
     def setUp(self):
         self.server = StubLtiService()
-
-        lti_base = self.server.config('lti_base', self.server.DEFAULT_LTI_BASE)
-        lti_endpoint = self.server.config('lti_endpoint', self.server.DEFAULT_LTI_ENDPOINT)
-        self.uri = lti_base + lti_endpoint
-
+        self.uri = 'http://127.0.0.1:{}/'.format(self.server.port)
          # Flag for creating right callback_url
         self.server.set_config('test_mode', True)
         self.server.set_config('run_inside_unittest_flag', True)
@@ -43,7 +39,8 @@ class StubLtiServiceTest(unittest.TestCase):
             'oauth_timestamp': '',
         }
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(self.uri, data=payload, headers=headers)
+        launch_uri = self.uri + 'correct_lti_endpoint'
+        response = requests.post(launch_uri, data=payload, headers=headers)
         self.assertIn('Wrong LTI signature', response.content)
 
     def test_wrong_signature(self):
@@ -69,11 +66,12 @@ class StubLtiServiceTest(unittest.TestCase):
             'resource_link_id':'',
         }
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(self.uri, data=payload, headers=headers)
+        launch_uri = self.uri + 'correct_lti_endpoint'
+        response = requests.post(launch_uri, data=payload, headers=headers)
         self.assertIn('Wrong LTI signature', response.content)
 
-
-    def test_success_response_launch_lti(self):
+    @patch('terrain.stubs.lti.StubLtiHandler.check_oauth_signature')
+    def test_success_response_launch_lti(self, check_oauth):
         """
         Success lti launch.
         """
@@ -94,12 +92,13 @@ class StubLtiServiceTest(unittest.TestCase):
             'lis_result_sourcedid': '',
             'resource_link_id':'',
         }
-        self.server.check_oauth_signature = Mock(return_value=True)
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(self.uri, data=payload, headers=headers)
+        launch_uri = self.uri + 'correct_lti_endpoint'
+        response = requests.post(launch_uri, data=payload, headers=headers)
         self.assertIn('This is LTI tool. Success.', response.content)
 
-    def test_send_graded_result(self):
+    @patch('terrain.stubs.lti.StubLtiHandler.check_oauth_signature')
+    def test_send_graded_result(self, check_oauth):
 
         payload = {
             'user_id': 'default_user_id',
@@ -118,13 +117,14 @@ class StubLtiServiceTest(unittest.TestCase):
             'lis_result_sourcedid': '',
             'resource_link_id':'',
         }
-        self.server.check_oauth_signature = Mock(return_value=True)
         # This is the uri for sending grade from lti.
         headers = {'referer': 'http://localhost:8000/'}
-        response = requests.post(self.uri, data=payload, headers=headers)
+        launch_uri = self.uri + 'correct_lti_endpoint'
+        response = requests.post(launch_uri, data=payload, headers=headers)
         self.assertIn('This is LTI tool. Success.', response.content)
         self.server.grade_data['TC answer'] = "Test response"
-        graded_response = requests.post('http://127.0.0.1:8034/grade')
+        grade_uri = self.uri + 'grade'
+        graded_response = requests.post(grade_uri)
         self.assertIn('Test response', graded_response.content)
 
 
