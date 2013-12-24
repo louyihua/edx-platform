@@ -387,19 +387,16 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
         templateName: "metadata-checkbox-entry",
 
         getValueFromEditor: function () {
-            return JSON.stringify(
-                _.map(
-                    this.$el.find(":checked"),
-                    function (element) {
-                        return $(element).data('value');
-                    }
-                )
+            return _.map(
+                this.$el.find(":checked"),
+                function (element) {
+                    return $(element).data('value');
+                }
             );
         },
 
         setValueInEditor: function (value) {
-            var values = (value) ? JSON.parse(value) : Array(),
-                valuesList = _.pluck(value, 'value');
+            var valuesList = _.pluck(value, 'value');
 
             this.$el.find('#' + this.uniqueId + " .input")
                 .prop('checked', false)

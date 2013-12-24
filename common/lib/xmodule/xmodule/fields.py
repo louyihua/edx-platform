@@ -2,7 +2,7 @@ import time
 import logging
 import re
 
-from xblock.fields import Field
+from xblock.fields import Field, List
 import datetime
 import dateutil.parser
 
@@ -218,3 +218,21 @@ class RelativeTime(Field):
         if len(stringified) == 7:
             stringified = '0' + stringified
         return stringified
+
+
+class Checkbox(List):
+
+    def _string_to_list(self, value):
+        #self.values = [{"value": value}]
+
+        return [{"value": value}]
+
+    def from_json(self, value):
+        """
+        If value is string (backward compatibility issue), convert to list.
+        """
+
+        if isinstance(value, basestring):
+            return self._string_to_list(value)
+
+        super(Checkbox, self).from_json(value)

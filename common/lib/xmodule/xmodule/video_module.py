@@ -28,7 +28,7 @@ from xmodule.raw_module import EmptyDataRawDescriptor
 from xmodule.xml_module import is_pointer_tag, name_to_pathname, deserialize_field
 from xmodule.modulestore import Location
 from xblock.fields import Scope, String, Boolean, List, Integer, ScopeIds
-from xmodule.fields import RelativeTime
+from xmodule.fields import RelativeTime, Checkbox
 
 from xmodule.modulestore.inheritance import InheritanceKeyValueStore
 from xblock.runtime import DbModel
@@ -93,17 +93,12 @@ class VideoFields(object):
     )
     #front-end code of video player checks logical validity of (start_time, end_time) pair.
 
-    source = String(
+    source = Checkbox(
         help="The external URL to download the video. This appears as a link beneath the video.",
         display_name="Download Video",
         scope=Scope.settings,
-        default='',
         values=[
             {"value": "allow"},
-            {"display_name": "Always", "value": "always"},
-            {"display_name": "On Reset", "value": "onreset"},
-            {"display_name": "Never", "value": "never"},
-            {"display_name": "Per Student", "value": "per_student"}
         ]
     )
     html5_sources = List(
@@ -173,10 +168,9 @@ class VideoModule(VideoFields, XModule):
         sources = {get_ext(src): src for src in self.html5_sources}
 
         if self.source:
-            try:
-                sources['main'] = self.html5_sources[0:1][0]
-            except IndexError:
-                pass
+            if self.html5_sources:
+                sources['main'] = self.html5_sources[0]
+
 
         return self.system.render_template('video.html', {
             'youtube_streams': _create_youtube_string(self),
@@ -421,6 +415,10 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
         for field in editable_fields.values():
             if field['field_name'] == 'source':
                 field['type'] = 'Checkbox'
+
+                # if isinstance(field['value'], basestring):
+                #     field['value'] = field['options'] = [{"value": field['value']}]
+
         return editable_fields
 
 def _create_youtube_string(module):
