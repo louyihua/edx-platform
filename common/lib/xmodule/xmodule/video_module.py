@@ -93,13 +93,19 @@ class VideoFields(object):
     )
     #front-end code of video player checks logical validity of (start_time, end_time) pair.
 
-    source = Checkbox(
+    source = String(
+        help="The external URL to download the video. This appears as a link beneath the video.",
+        display_name="Download Video",
+        scope=Scope.settings,
+        default="",
+    )
+    download_video = List(
         help="Allow to download the video. This appears as a link beneath the video.",
-        display_name="Allow download",
+        display_name="Allow to download",
         scope=Scope.settings,
         values=[
-            {"value": "allow_download"},
-        ]
+            {"value": "allow_to_download"},
+        ],
     )
     html5_sources = List(
         help="A list of filenames to be used with HTML5 video. The first supported filetype will be displayed.",
@@ -167,7 +173,7 @@ class VideoModule(VideoFields, XModule):
         get_ext = lambda filename: filename.rpartition('.')[-1]
         sources = {get_ext(src): src for src in self.html5_sources}
 
-        if self.source:
+        if self.download_video or self.source:
             if self.html5_sources:
                 sources['main'] = self.html5_sources[0]
 
@@ -412,9 +418,15 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
     @property
     def editable_metadata_fields(self):
         editable_fields = super(VideoDescriptor, self).editable_metadata_fields
-        for field in editable_fields.values():
-            if field['field_name'] == 'source':
-                field['type'] = 'Checkbox'
+        source = editable_fields['source']
+        download_video = editable_fields['download_video']
+
+        if source['value']:
+            download_video['value'] = ['allow_to_download']
+
+        download_video['type'] = 'Checkbox'
+
+        editable_fields.pop('source')
 
         return editable_fields
 
