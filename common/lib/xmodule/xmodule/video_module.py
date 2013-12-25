@@ -417,7 +417,8 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
                 field['type'] = 'Checkbox'
 
                 if isinstance(field['value'], basestring):
-                    field['value'] = field['options'] = [{"value": field['value']}]
+                    field['value'] = list(field['value'])
+                    field['options'] = list({"value": field['value']})
 
         return editable_fields
 

@@ -3,7 +3,7 @@
         class="label setting-label"
         for="<%= uniqueId %>-0">
             <%= model.get('display_name') %>
-        </label>
+    </label>
     <div class="wrapper-checkbox-settings" id="<%= uniqueId %>">
         <ol class="checkbox-settings">
         <% isSingleOption = model.get('options').length === 1 %>
@@ -18,9 +18,8 @@
                     <input
                         id="<%= uniqueId %>-<%= index %>"
                         name="<%= uniqueId %>"
-                        class="input"
+                        class="input setting-input"
                         type="checkbox"
-                        data-value='<%= JSON.stringify(option) %>'
                         value="<%= option['value'] %>" />
                 </span>
             <% if (hasDisplayName) { %>

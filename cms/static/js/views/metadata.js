@@ -388,22 +388,25 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
 
         getValueFromEditor: function () {
             return _.map(
-                this.$el.find(":checked"),
+                this.$el.find('#' + this.uniqueId + " .input:checked"),
                 function (element) {
-                    return $(element).data('value');
+                    return element.value;
                 }
             );
         },
 
         setValueInEditor: function (value) {
-            var valuesList = _.pluck(value, 'value');
+            var checkboxes = this.$el.find('#' + this.uniqueId + " .input"),
+                matchedCheckboxes = checkboxes.filter(function() {
+                    return $.inArray(this.value, value) !== -1;
+                });
 
-            this.$el.find('#' + this.uniqueId + " .input")
-                .prop('checked', false)
-                .filter(function() {
-                    return $.inArray(this.value, valuesList) !== -1;
-                })
-                .prop('checked', true);
+            if (matchedCheckboxes.length || !value.length) {
+                // Reset all checkboxes
+                checkboxes.prop('checked', false);
+                // Check only matched checkboxes
+                matchedCheckboxes.prop('checked', true);
+            }
         }
     });
 

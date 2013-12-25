@@ -236,4 +236,4 @@ class Checkbox(List):
             return value
             # return self._string_to_list(value)
 
-        super(Checkbox, self).from_json(value)
+        return super(Checkbox, self).from_json(value)
