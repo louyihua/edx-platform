@@ -404,7 +404,7 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
             if (matchedCheckboxes.length || !value.length) {
                 // Reset all checkboxes
                 checkboxes.prop('checked', false);
-                // Check only matched checkboxes
+                // Mark only matched checkboxes
                 matchedCheckboxes.prop('checked', true);
             }
         }

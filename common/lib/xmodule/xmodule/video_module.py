@@ -416,10 +416,6 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
             if field['field_name'] == 'source':
                 field['type'] = 'Checkbox'
 
-                if isinstance(field['value'], basestring):
-                    field['value'] = list(field['value'])
-                    field['options'] = list({"value": field['value']})
-
         return editable_fields
 
 def _create_youtube_string(module):

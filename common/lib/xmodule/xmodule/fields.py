@@ -221,19 +221,18 @@ class RelativeTime(Field):
 
 
 class Checkbox(List):
-
-    def _string_to_list(self, value):
-        #self.values = [{"value": value}]
-
-        return [{"value": value}]
-
     def from_json(self, value):
         """
         If value is string (backward compatibility issue), convert to list.
         """
-
         if isinstance(value, basestring):
-            return value
-            # return self._string_to_list(value)
+            self.old_values = self._values
+            self._values = lambda: [{"value": value}]
+            return [value]
+
+        if getattr(self, 'old_values', None):
+            self._values = self.old_values
 
         return super(Checkbox, self).from_json(value)
+
+
