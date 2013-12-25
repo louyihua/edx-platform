@@ -243,7 +243,7 @@ class StubLtiHandler(StubHttpRequestHandler):
         return headers
 
     def check_oauth_signature(self, params, client_signature):
-        '''
+        """
         Checks oauth signature from client.
 
         `params` are params from post request except signature,
@@ -257,14 +257,13 @@ class StubLtiHandler(StubHttpRequestHandler):
 
         Returns `True` if signatures are correct, otherwise `False`.
 
-        '''
+        """
         client_secret = unicode(self.server.config('client_secret', self.DEFAULT_CLIENT_SECRET))
         lti_base = self.server.config('lti_base', self.DEFAULT_LTI_BASE)
         lti_endpoint = self.server.config('lti_endpoint', self.DEFAULT_LTI_ENDPOINT)
         url = lti_base + lti_endpoint
 
         request = mock.Mock()
-
         request.params = [(unicode(k), unicode(v)) for k, v in params.items()]
         request.uri = unicode(url)
         request.http_method = u'POST'
@@ -273,10 +272,10 @@ class StubLtiHandler(StubHttpRequestHandler):
 
 
 class StubLtiService(StubHttpService):
-    '''
+    """
     A stub LTI provider server that responds
     to POST and GET requests to localhost.
-    '''
+    """
 
     HANDLER_CLASS = StubLtiHandler
 
