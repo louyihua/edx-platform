@@ -94,11 +94,11 @@ class VideoFields(object):
     #front-end code of video player checks logical validity of (start_time, end_time) pair.
 
     source = Checkbox(
-        help="The external URL to download the video. This appears as a link beneath the video.",
-        display_name="Download Video",
+        help="Allow to download the video. This appears as a link beneath the video.",
+        display_name="Allow download",
         scope=Scope.settings,
         values=[
-            {"value": "allow"},
+            {"value": "allow_download"},
         ]
     )
     html5_sources = List(
@@ -416,8 +416,8 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
             if field['field_name'] == 'source':
                 field['type'] = 'Checkbox'
 
-                # if isinstance(field['value'], basestring):
-                #     field['value'] = field['options'] = [{"value": field['value']}]
+                if isinstance(field['value'], basestring):
+                    field['value'] = field['options'] = [{"value": field['value']}]
 
         return editable_fields
 

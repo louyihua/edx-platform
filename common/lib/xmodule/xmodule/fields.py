@@ -233,6 +233,7 @@ class Checkbox(List):
         """
 
         if isinstance(value, basestring):
-            return self._string_to_list(value)
+            return value
+            # return self._string_to_list(value)
 
         super(Checkbox, self).from_json(value)

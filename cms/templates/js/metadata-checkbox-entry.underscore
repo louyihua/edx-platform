@@ -6,10 +6,10 @@
         </label>
     <div class="wrapper-checkbox-settings" id="<%= uniqueId %>">
         <ol class="checkbox-settings">
-        <% singleOption = model.get('options').length === 1 %>
+        <% isSingleOption = model.get('options').length === 1 %>
         <% _.each(model.get('options'), function(option, index) { %>
             <% hasDisplayName = option.display_name !== undefined %>
-            <% if (singleOption && !hasDisplayName) { %>
+            <% if (isSingleOption && !hasDisplayName) { %>
                 <li class="checkbox-settings-item a-center">
             <% } else { %>
                 <li class="checkbox-settings-item">
@@ -17,6 +17,7 @@
                 <span class="input-wrapper">
                     <input
                         id="<%= uniqueId %>-<%= index %>"
+                        name="<%= uniqueId %>"
                         class="input"
                         type="checkbox"
                         data-value='<%= JSON.stringify(option) %>'
