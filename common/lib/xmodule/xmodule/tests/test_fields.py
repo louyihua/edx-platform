@@ -2,9 +2,8 @@
 import datetime
 import unittest
 from django.utils.timezone import UTC
-from xmodule.fields import Date, Timedelta, RelativeTime
+from xmodule.fields import Date, Timedelta, RelativeTime, Checkbox
 from xmodule.timeinfo import TimeInfo
-import time
 
 
 class DateTest(unittest.TestCase):
@@ -172,3 +171,19 @@ class RelativeTimeTest(unittest.TestCase):
             "11:02:03",
             RelativeTimeTest.delta.to_json(datetime.timedelta(seconds=39723))
         )
+
+class CheckboxTest(unittest.TestCase):
+
+    delta = Checkbox()
+
+    def test_from_json(self):
+        self.assertEqual(
+            CheckboxTest.delta.from_json("string"),
+            ["string"]
+        )
+
+        self.assertEqual(
+            CheckboxTest.delta.values,
+            [{"value": "string"}]
+        )
+
