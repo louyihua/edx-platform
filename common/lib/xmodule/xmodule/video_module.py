@@ -28,7 +28,7 @@ from xmodule.raw_module import EmptyDataRawDescriptor
 from xmodule.xml_module import is_pointer_tag, name_to_pathname, deserialize_field
 from xmodule.modulestore import Location
 from xblock.fields import Scope, String, Boolean, List, Integer, ScopeIds
-from xmodule.fields import RelativeTime
+from xmodule.fields import RelativeTime, Checkbox
 
 from xmodule.modulestore.inheritance import InheritanceKeyValueStore
 from xblock.runtime import DbModel
@@ -93,13 +93,7 @@ class VideoFields(object):
     )
     #front-end code of video player checks logical validity of (start_time, end_time) pair.
 
-    source = String(
-        help="The external URL to download the video. This appears as a link beneath the video.",
-        display_name="Download Video",
-        scope=Scope.settings,
-        default="",
-    )
-    allow_to_download = List(
+    source = Checkbox(
         help="Allow to download the video. This appears as a link beneath the video.",
         display_name="Download Video",
         scope=Scope.settings,
@@ -170,13 +164,10 @@ class VideoModule(VideoFields, XModule):
     def get_html(self):
         caption_asset_path = "/static/subs/"
 
-        metadata_fields = self.descriptor.editable_metadata_fields
-        allow_to_download = metadata_fields['allow_to_download']
-
         get_ext = lambda filename: filename.rpartition('.')[-1]
         sources = {get_ext(src): src for src in self.html5_sources}
 
-        if allow_to_download['value'] and self.html5_sources:
+        if self.source and self.html5_sources:
             sources['main'] = self.html5_sources[0]
 
         return self.system.render_template('video.html', {
@@ -416,17 +407,6 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
 
         return field_data
 
-    @property
-    def editable_metadata_fields(self):
-        editable_fields = super(VideoDescriptor, self).editable_metadata_fields
-        source = editable_fields.pop('source')
-        allow_to_download = editable_fields['allow_to_download']
-        allow_to_download['type'] = 'Checkbox'
-
-        if source['value'] and allow_to_download['explicitly_set'] is False:
-            allow_to_download['value'] = ['allow_to_download']
-
-        return editable_fields
 
 def _create_youtube_string(module):
     """
