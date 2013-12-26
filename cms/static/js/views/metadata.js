@@ -396,6 +396,10 @@ function(BaseView, _, MetadataModel, AbstractEditor, VideoList) {
         },
 
         setValueInEditor: function (value) {
+            if (!$.isArray(value)) {
+                return false;
+            }
+
             var checkboxes = this.$el.find('#' + this.uniqueId + " .input"),
                 matchedCheckboxes = checkboxes.filter(function() {
                     return $.inArray(this.value, value) !== -1;
