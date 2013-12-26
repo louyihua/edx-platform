@@ -101,7 +101,7 @@ class VideoFields(object):
     )
     allow_to_download = List(
         help="Allow to download the video. This appears as a link beneath the video.",
-        display_name="Allow to download",
+        display_name="Download Video",
         scope=Scope.settings,
         values=[
             {"value": "allow_to_download"},
