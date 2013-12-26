@@ -98,7 +98,7 @@ class VideoFields(object):
         display_name="Download Video",
         scope=Scope.settings,
         values=[
-            {"value": "allow_to_download"},
+            {"value": "true"},
         ],
     )
     html5_sources = List(
@@ -375,7 +375,7 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
         sources = xml.findall('source')
         if sources:
             field_data['html5_sources'] = [ele.get('src') for ele in sources]
-            field_data['source'] = field_data['html5_sources'][0]
+            field_data['source'] = ["true"]
 
         track = xml.find('track')
         if track is not None:

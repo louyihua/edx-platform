@@ -236,7 +236,7 @@ class VideoDescriptorImportTestCase(unittest.TestCase):
             'start_time': datetime.timedelta(seconds=1),
             'end_time': datetime.timedelta(seconds=60),
             'track': 'http://www.example.com/track',
-            'source': 'http://www.example.com/source.mp4',
+            'source': ['http://www.example.com/source.mp4'],
             'html5_sources': ['http://www.example.com/source.mp4'],
             'data': ''
         })
@@ -265,7 +265,7 @@ class VideoDescriptorImportTestCase(unittest.TestCase):
             'start_time': datetime.timedelta(seconds=0.0),
             'end_time': datetime.timedelta(seconds=0.0),
             'track': 'http://www.example.com/track',
-            'source': 'http://www.example.com/source.mp4',
+            'source': ['http://www.example.com/source.mp4'],
             'html5_sources': ['http://www.example.com/source.mp4'],
             'data': ''
         })
@@ -286,7 +286,7 @@ class VideoDescriptorImportTestCase(unittest.TestCase):
             'start_time': datetime.timedelta(seconds=0.0),
             'end_time': datetime.timedelta(seconds=0.0),
             'track': '',
-            'source': '',
+            'source': [],
             'html5_sources': [],
             'data': ''
         })
@@ -301,7 +301,7 @@ class VideoDescriptorImportTestCase(unittest.TestCase):
             <video display_name="&quot;display_name&quot;"
                 html5_sources="[&quot;source_1&quot;, &quot;source_2&quot;]"
                 show_captions="false"
-                source="&quot;http://download_video&quot;"
+                source="[&quot;http://download_video&quot;]"
                 sub="&quot;html5_subtitles&quot;"
                 track="&quot;http://download_track&quot;"
                 youtube_id_0_75="&quot;OEoXaMPEzf65&quot;"
@@ -320,7 +320,7 @@ class VideoDescriptorImportTestCase(unittest.TestCase):
             'start_time': datetime.timedelta(seconds=0.0),
             'end_time': datetime.timedelta(seconds=0.0),
             'track': 'http://download_track',
-            'source': 'http://download_video',
+            'source': ['http://download_video'],
             'html5_sources': ["source_1", "source_2"],
             'data': ''
         })
@@ -342,7 +342,7 @@ class VideoDescriptorImportTestCase(unittest.TestCase):
             'start_time': datetime.timedelta(seconds=0.0),
             'end_time': datetime.timedelta(seconds=0.0),
             'track': '',
-            'source': '',
+            'source': [],
             'html5_sources': [],
             'data': ''
         })

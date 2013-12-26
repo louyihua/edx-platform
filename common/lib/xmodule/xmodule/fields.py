@@ -220,17 +220,20 @@ class RelativeTime(Field):
         return stringified
 
 class Checkbox(List):
+    """
+    A field class for representing a checkboxes (<input type="checkbox" />).
+
+    The stored value can either be None or a list.
+    """
+
     def from_json(self, value):
         """
-        If value is string (backward compatibility issue), convert to list.
+        If value is string (video_module backward compatibility issue), convert
+        to list.
         """
         if isinstance(value, basestring):
-            self.old_values = self._values
-            self._values = lambda: [{"value": value}]
-            return [value]
-
-        if getattr(self, 'old_values', None):
-            self._values = self.old_values
+            self._values = [{"value": "true"}]
+            return ["true"]
 
         return super(Checkbox, self).from_json(value)
 
