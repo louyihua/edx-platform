@@ -5,6 +5,8 @@ These are notable changes in edx-platform.  This is a rolling list of changes,
 in roughly chronological order, most recent first.  Add your entries at or near
 the top.  Include a label indicating the component affected.
 
+Blades: Refactor stub implementation of LTI Provider. BLD-601.
+
 Blades: Video player improvements:
   - Disable edX controls on iPhone/iPod (native controls are used).
   - Disable unsupported controls (volume, playback rate) on iPad/Android.
