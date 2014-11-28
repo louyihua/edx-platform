@@ -1,0 +1,21 @@
+<td class="name-col">
+    <span class="title"><a data-tooltip="<%= gettext('Open/download this video') %>" href="<%= url %>" class="filename"><%= display_name %></a></span>
+
+    <div class="embeddable-xml"></div>
+</td>
+<td class="date-col">
+    <%= date_added %>
+</td>
+<td class="embed-col">
+    <input type="text" class="embeddable-xml-input" value="<%= portable_url %>" readonly>
+</td>
+<td class="embed-col">
+    <input type="text" class="embeddable-xml-input" value="<%= external_url %>" readonly>
+</td>
+<td class="actions-col">
+    <ul class="actions-list">
+        <li class="action-item action-delete">
+            <a href="#" data-tooltip="<%= gettext('Delete this video') %>" class="remove-video-button action-button"><i class="icon-remove-sign"></i> <span class="sr"><%= gettext('Delete this video') %></span></a>
+        </li>
+    </ul>
+</td>

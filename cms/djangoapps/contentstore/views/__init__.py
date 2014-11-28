@@ -18,6 +18,7 @@ from .export_git import *
 from .user import *
 from .tabs import *
 from .transcripts_ajax import *
+from .videos import *
 try:
     from .dev import *
 except ImportError:

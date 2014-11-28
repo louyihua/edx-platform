@@ -79,6 +79,7 @@ urlpatterns += patterns(
     url(r'^checklists/(?P<course_key_string>[^/]+)/(?P<checklist_index>\d+)?$', 'checklists_handler'),
     url(r'^orphan/(?P<course_key_string>[^/]+)$', 'orphan_handler'),
     url(r'^assets/(?P<course_key_string>[^/]+)/(?P<asset_key_string>.+)?$', 'assets_handler'),
+    url(r'^videos/(?P<course_key_string>[^/]+)/(?P<asset_key_string>.+)?$', 'videos_handler'),
     url(r'^import/(?P<course_key_string>[^/]+)$', 'import_handler'),
     url(r'^import_status/(?P<course_key_string>[^/]+)/(?P<filename>.+)$', 'import_status_handler'),
     url(r'^export/(?P<course_key_string>[^/]+)$', 'export_handler'),

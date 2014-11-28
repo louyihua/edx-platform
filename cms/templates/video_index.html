@@ -1,0 +1,126 @@
+<%inherit file="base.html" />
+<%def name="online_help_token()"><% return "files" %></%def>
+<%!
+  from django.core.urlresolvers import reverse
+  from django.utils.translation import ugettext as _
+%>
+<%block name="title">${_("Videos")}</%block>
+<%block name="bodyclass">is-signedin course videos view-uploads</%block>
+
+<%namespace name='static' file='static_content.html'/>
+
+<%block name="header_extras">
+% for template_name in ["video-library", "video", "paging-header", "paging-footer"]:
+<script type="text/template" id="${template_name}-tpl">
+    <%static:include path="js/${template_name}.underscore" />
+</script>
+% endfor
+</%block>
+
+<%block name="jsextra">
+<script type="text/javascript">
+    require(["jquery", "js/collections/video", "js/views/videos", "jquery.fileupload"],
+            function($, VideoCollection, VideosView) {
+
+        var videos = new VideoCollection();
+        videos.url = "${video_callback_url}";
+        var videosView = new VideosView({collection: videos, el: $('.videos-wrapper')});
+        videosView.render();
+
+    }); // end of require()
+</script>
+</%block>
+
+<%block name="content">
+
+<div class="wrapper-mast wrapper">
+    <header class="mast has-actions has-subtitle">
+        <h1 class="page-header">
+            <small class="subtitle">${_("Content")}</small>
+            <span class="sr">&gt; </span>${_("Videos")}
+        </h1>
+
+        <nav class="nav-actions">
+            <h3 class="sr">${_("Page Actions")}</h3>
+            <ul>
+                <li class="nav-item">
+                    <a href="#" class="button upload-button new-button"><i class="icon-plus"></i> ${_("Upload New Video")}</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+</div>
+
+<div class="wrapper-content wrapper">
+    <section class="content">
+        <article class="content-primary" role="main">
+            <div class="videos-wrapper"/>
+            <div class="ui-loading">
+                <p><span class="spin"><i class="icon-refresh"></i></span> <span class="copy">${_("Loading&hellip;")}</span></p>
+            </div>
+        </article>
+
+        <aside class="content-supplementary" role="complimentary">
+            <div class="bit">
+                <h3 class="title-3">${_("What files are listed here?")}</h3>
+            	<p>${_("All videos you uploaded for your course is shown here.")}</p>
+            </div>
+            <div class="bit">
+                <h3 class="title-3">${_("File URLs")}</h3>
+                 <ul class="list-details">
+                    <li class="item-detail">${_("You use the Embed URL value to link to the video within your course.")}</li>
+                    <li class="item-detail">${_("You use the External URL value to reference the video from outside of your course. Do not use the External URL as a link value within your course.")}</li>
+          			
+        		</ul>
+            </div>
+             <div class="bit">
+                <h3 class="title-3">${_("What can I do on this page?")}</h3>
+                 <ul class="list-details">
+                    <li class="item-detail">${_("You can upload new videos or view, download, or delete existing videos.")}</li>
+                    
+                </ul>
+            </div>
+        </aside>
+    </section>
+</div>
+
+<div class="upload-modal modal">
+    <a href="#" class="close-button"><i class="icon-remove-sign"></i> <span class="sr">${_('close')}</span></a>
+    <div class="modal-body">
+        <h1 class="title">${_("Upload New Video")}</h1>
+        <p class="file-name">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="embeddable">
+            <label>URL:</label>
+            <input type="text" class="embeddable-xml-input" value='' readonly>
+        </div>
+        <form class="file-chooser" action="${video_callback_url}"
+              method="post" enctype="multipart/form-data">
+            <a href="#" class="choose-file-button">${_("Choose File")}</a>
+            <input type="file" class="file-input" name="file" multiple>
+        </form>
+    </div>
+</div>
+
+
+</%block>
+
+<%block name="view_alerts">
+<!-- alert: save confirmed with close -->
+<div class="wrapper wrapper-alert wrapper-alert-confirmation" role="status">
+    <div class="alert confirmation">
+        <i class="icon-ok"></i>
+
+        <div class="copy">
+            <h2 class="title title-3">${_('Your file has been deleted.')}</h2>
+        </div>
+
+        <a href="" rel="view" class="action action-alert-close">
+            <i class="icon-remove-sign"></i>
+            <span class="label">${_('close alert')}</span>
+        </a>
+    </div>
+</div>
+</%block>
