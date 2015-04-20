@@ -11,7 +11,7 @@ from datetime import datetime
 from collections import defaultdict
 from django.utils import translation
 from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
+from django.utils.translation import ungettext, pgettext
 
 from django.conf import settings
 from django.core.context_processors import csrf
@@ -792,7 +792,7 @@ def get_cosmetic_display_price(course, registration_price):
         return _("{currency_symbol}{price}").format(currency_symbol=currency_symbol, price=price)
     else:
         # Translators: This refers to the cost of the course. In this case, the course costs nothing so it is free.
-        return _('Free')
+        return unicode(pgettext('No cost', 'Free'))
 
 
 @ensure_csrf_cookie
